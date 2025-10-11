@@ -231,9 +231,9 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
     );
     const scale = POSTER_SIZES[sizeIndex]?.scale || 1;
     
-    // Scale down images on mobile (50% of desktop size)
+    // Scale down images on mobile (65% of desktop size)
     const isMobile = windowWidth < 640;
-    const mobileScale = isMobile ? 0.5 : 1;
+    const mobileScale = isMobile ? 0.65 : 1;
     const maxSize = BASE_SIZE * scale * mobileScale;
     
     const tempImg = new Image();
