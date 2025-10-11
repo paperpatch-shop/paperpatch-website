@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Upload, X, Plus, Image as ImageIcon, ArrowLeft, ChevronLeft, ChevronRight, Move } from 'lucide-react';
 import { OrderItem, StandardSize } from '@/lib/types';
 import { getPrices } from '@/lib/supabase';
@@ -65,6 +65,8 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
   const [error, setError] = useState('');
   const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
+  const isDraggingRef = useRef(false);
+  const dragImageIdRef = useRef<string | null>(null);
 
   // Load prices from Supabase
   useEffect(() => {
@@ -191,19 +193,21 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
     ));
   };
 
-  const handleImageDragStart = (e: React.MouseEvent | React.TouchEvent, imageId: string) => {
+  const handleImageDragStart = useCallback((e: React.MouseEvent | React.TouchEvent, imageId: string) => {
     e.preventDefault();
     e.stopPropagation();
     
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     
+    isDraggingRef.current = true;
+    dragImageIdRef.current = imageId;
     setDragStart({ x: clientX, y: clientY });
     setSelectedImageId(imageId);
-  };
+  }, []);
 
-  const handleImageDrag = (e: React.MouseEvent | React.TouchEvent, imageId: string) => {
-    if (!dragStart) return;
+  const handleImageDrag = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    if (!isDraggingRef.current || !dragStart || !dragImageIdRef.current) return;
     e.preventDefault();
     
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
@@ -212,18 +216,47 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
     const deltaX = clientX - dragStart.x;
     const deltaY = clientY - dragStart.y;
     
-    setImages(images.map(img => 
-      img.id === imageId
+    setImages(prev => prev.map(img => 
+      img.id === dragImageIdRef.current
         ? { ...img, position: { x: img.position.x + deltaX, y: img.position.y + deltaY } }
         : img
     ));
     
     setDragStart({ x: clientX, y: clientY });
-  };
+  }, [dragStart]);
 
-  const handleImageDragEnd = () => {
+  const handleImageDragEnd = useCallback(() => {
+    isDraggingRef.current = false;
+    dragImageIdRef.current = null;
     setDragStart(null);
-  };
+  }, []);
+
+  // Global mouse/touch move and end handlers for smoother dragging
+  useEffect(() => {
+    const handleGlobalMove = (e: MouseEvent | TouchEvent) => {
+      if (isDraggingRef.current) {
+        handleImageDrag(e as any);
+      }
+    };
+
+    const handleGlobalEnd = () => {
+      if (isDraggingRef.current) {
+        handleImageDragEnd();
+      }
+    };
+
+    document.addEventListener('mousemove', handleGlobalMove);
+    document.addEventListener('touchmove', handleGlobalMove, { passive: false });
+    document.addEventListener('mouseup', handleGlobalEnd);
+    document.addEventListener('touchend', handleGlobalEnd);
+
+    return () => {
+      document.removeEventListener('mousemove', handleGlobalMove);
+      document.removeEventListener('touchmove', handleGlobalMove);
+      document.removeEventListener('mouseup', handleGlobalEnd);
+      document.removeEventListener('touchend', handleGlobalEnd);
+    };
+  }, [handleImageDrag, handleImageDragEnd]);
 
   const getDisplayDimensions = (img: ImageWithSize) => {
     const sizeIndex = POSTER_SIZES.findIndex(
@@ -520,17 +553,10 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                         transform: `translate(calc(-50% + ${img.position.x}px), calc(-50% + ${img.position.y}px))`,
                       }}
                       onMouseDown={(e) => handleImageDragStart(e, img.id)}
-                      onMouseMove={(e) => dragStart && selectedImageId === img.id ? handleImageDrag(e, img.id) : undefined}
-                      onMouseUp={handleImageDragEnd}
-                      onMouseLeave={handleImageDragEnd}
                       onTouchStart={(e) => handleImageDragStart(e, img.id)}
-                      onTouchMove={(e) => dragStart && selectedImageId === img.id ? handleImageDrag(e, img.id) : undefined}
-                      onTouchEnd={handleImageDragEnd}
                     >
                       <div
-                        className={`relative shadow-2xl transition-all ${
-                          selectedImageId === img.id ? 'ring-2 ring-white' : ''
-                        }`}
+                        className="relative shadow-2xl"
                         style={{
                           width: `${dims.width}px`,
                           height: `${dims.height}px`,
