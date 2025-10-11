@@ -40,6 +40,7 @@ const POSTER_SIZES = [
 export default function MultiImageUpload({ onContinue, onBack, initialItems }: MultiImageUploadProps) {
   const [priceData, setPriceData] = useState<StandardSize[]>([]);
   const [isLoadingPrices, setIsLoadingPrices] = useState(true);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
   
   // Initialize from initialItems if provided
   const [images, setImages] = useState<ImageWithSize[]>(() => {
@@ -75,6 +76,16 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
       setIsLoadingPrices(false);
     };
     loadPrices();
+  }, []);
+
+  // Handle window resize for responsive image scaling
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // Helper function to get price for a size
@@ -180,17 +191,26 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
     ));
   };
 
-  const handleImageDragStart = (e: React.MouseEvent, imageId: string) => {
+  const handleImageDragStart = (e: React.MouseEvent | React.TouchEvent, imageId: string) => {
+    e.preventDefault();
     e.stopPropagation();
-    setDragStart({ x: e.clientX, y: e.clientY });
+    
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    
+    setDragStart({ x: clientX, y: clientY });
     setSelectedImageId(imageId);
   };
 
-  const handleImageDrag = (e: React.MouseEvent, imageId: string) => {
+  const handleImageDrag = (e: React.MouseEvent | React.TouchEvent, imageId: string) => {
     if (!dragStart) return;
+    e.preventDefault();
     
-    const deltaX = e.clientX - dragStart.x;
-    const deltaY = e.clientY - dragStart.y;
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    
+    const deltaX = clientX - dragStart.x;
+    const deltaY = clientY - dragStart.y;
     
     setImages(images.map(img => 
       img.id === imageId
@@ -198,7 +218,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
         : img
     ));
     
-    setDragStart({ x: e.clientX, y: e.clientY });
+    setDragStart({ x: clientX, y: clientY });
   };
 
   const handleImageDragEnd = () => {
@@ -210,7 +230,11 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
       s => s.width === img.orderItem.width && s.height === img.orderItem.height
     );
     const scale = POSTER_SIZES[sizeIndex]?.scale || 1;
-    const maxSize = BASE_SIZE * scale;
+    
+    // Scale down images on mobile (50% of desktop size)
+    const isMobile = windowWidth < 640;
+    const mobileScale = isMobile ? 0.5 : 1;
+    const maxSize = BASE_SIZE * scale * mobileScale;
     
     const tempImg = new Image();
     tempImg.src = img.preview;
@@ -444,8 +468,8 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
       {images.length > 0 && (
         <div className="lg:sticky lg:top-8 h-fit">
           <div className="relative bg-card/80 backdrop-blur-sm rounded-2xl shadow-lg border border-[#E5D5C0] transition-all duration-150 overflow-hidden">
-            <div className="relative p-6">
-              <h3 className="text-xl font-bold text-foreground mb-4">Preview</h3>
+            <div className="relative p-3 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-bold text-foreground mb-3 sm:mb-4">Preview</h3>
 
               {/* Preview Container with Background */}
               <div 
@@ -465,21 +489,21 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                 />
 
                 {/* Background Navigation */}
-                <div className="absolute top-4 left-0 right-0 flex justify-between px-4 z-20">
+                <div className="absolute top-2 sm:top-4 left-0 right-0 flex justify-between px-2 sm:px-4 z-20">
                   <button
                     onClick={prevBackground}
-                    className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white border border-[#E5D5C0] rounded-full shadow-lg transition-colors"
+                    className="p-1.5 sm:p-2 bg-white/90 backdrop-blur-sm hover:bg-white border border-[#E5D5C0] rounded-full shadow-lg transition-colors"
                   >
-                    <ChevronLeft className="w-5 h-5 text-[#6B5444]" />
+                    <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-[#6B5444]" />
                   </button>
-                  <div className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-[#6B5444] border border-[#E5D5C0]">
+                  <div className="bg-white/90 backdrop-blur-sm px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium text-[#6B5444] border border-[#E5D5C0]">
                     {currentBgIndex + 1} / {BACKGROUND_IMAGES.length}
                   </div>
                   <button
                     onClick={nextBackground}
-                    className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white border border-[#E5D5C0] rounded-full shadow-lg transition-colors"
+                    className="p-1.5 sm:p-2 bg-white/90 backdrop-blur-sm hover:bg-white border border-[#E5D5C0] rounded-full shadow-lg transition-colors"
                   >
-                    <ChevronRight className="w-5 h-5 text-[#6B5444]" />
+                    <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#6B5444]" />
                   </button>
                 </div>
 
@@ -489,7 +513,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                   return (
                     <div
                       key={img.id}
-                      className={`absolute cursor-move ${selectedImageId === img.id ? 'z-10' : 'z-5'}`}
+                      className={`absolute cursor-move touch-none ${selectedImageId === img.id ? 'z-10' : 'z-5'}`}
                       style={{
                         left: '50%',
                         top: '50%',
@@ -499,6 +523,9 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                       onMouseMove={(e) => dragStart && selectedImageId === img.id ? handleImageDrag(e, img.id) : undefined}
                       onMouseUp={handleImageDragEnd}
                       onMouseLeave={handleImageDragEnd}
+                      onTouchStart={(e) => handleImageDragStart(e, img.id)}
+                      onTouchMove={(e) => dragStart && selectedImageId === img.id ? handleImageDrag(e, img.id) : undefined}
+                      onTouchEnd={handleImageDragEnd}
                     >
                       <div
                         className={`relative shadow-2xl transition-all ${
@@ -521,9 +548,10 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                 })}
 
                 {/* Drag hint */}
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1 z-30 text-[#6B5444] border border-[#E5D5C0]">
+                <div className="absolute bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium flex items-center space-x-1 z-30 text-[#6B5444] border border-[#E5D5C0]">
                   <Move className="w-3 h-3" />
-                  <span>Drag to reposition • Click to select</span>
+                  <span className="hidden sm:inline">Drag to reposition • Click to select</span>
+                  <span className="sm:hidden">Drag to move</span>
                 </div>
               </div>
             </div>
