@@ -9,7 +9,7 @@
 
   /* Custom cursor styles - using external SVG files */
   body {
-    cursor: url('/cursors/arrow.svg') 0 0, auto;
+    cursor: url('/cursors/arrow.svg') 5 3, auto;
   }
 
   /* Apply pointer cursor to all clickable elements */
@@ -21,11 +21,11 @@
   input[type="file"],
   select,
   .cursor-pointer {
-    cursor: url('/cursors/pointer.svg') 12 12, pointer !important;
+    cursor: url('/cursors/pointer.svg') 10 5, pointer !important;
   }
 
   .cursor-pointer-custom {
-    cursor: url('/cursors/pointer.svg') 12 12, pointer;
+    cursor: url('/cursors/pointer.svg') 10 5, pointer !important;
   }
 
   .cursor-not-allowed-custom,
@@ -35,15 +35,15 @@
   }
 
   .cursor-move-custom {
-    cursor: url('/cursors/move.svg') 12 12, move;
+    cursor: url('/cursors/move.svg') 12 12, move !important;
   }
 
   .cursor-grab-custom {
-    cursor: url('/cursors/pointer.svg') 12 12, grab;
+    cursor: url('/cursors/pointer.svg') 10 5, grab !important;
   }
 
   .cursor-grabbing-custom {
-    cursor: url('/cursors/move.svg') 12 12, grabbing;
+    cursor: url('/cursors/move.svg') 12 12, grabbing !important;
   }
 }
 
