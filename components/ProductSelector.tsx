@@ -13,6 +13,7 @@ interface ProductSelectorProps {
 
 export default function ProductSelector({ onSelect, currentSelection }: ProductSelectorProps) {
   const [standardSizes, setStandardSizes] = useState<StandardSize[]>(DEFAULT_SIZES);
+  const [isLoadingPrices, setIsLoadingPrices] = useState(true);
   const [sizeType, setSizeType] = useState<'standard' | 'custom'>('standard');
   const [selectedStandardIndex, setSelectedStandardIndex] = useState(0);
   const [withBoard, setWithBoard] = useState(false);
@@ -23,25 +24,28 @@ export default function ProductSelector({ onSelect, currentSelection }: ProductS
   // Load prices from Supabase on mount
   useEffect(() => {
     const loadPrices = async () => {
+      console.log('Loading prices from Supabase...');
       const loadedSizes = await getPrices();
+      console.log('Loaded prices:', loadedSizes);
       setStandardSizes(loadedSizes);
+      setIsLoadingPrices(false);
       
       // Trigger initial selection with loaded prices
-      const size = loadedSizes[selectedStandardIndex];
-      const price = withBoard && size.priceWithBoard 
-        ? size.priceWithBoard 
-        : size.priceWithoutBoard;
+      const size = loadedSizes[0];
+      const price = size.priceWithoutBoard;
+      
+      console.log('Initial selection price:', price);
       
       onSelect({
         width: size.width,
         height: size.height,
-        withBoard: withBoard,
+        withBoard: false,
         price: price,
       });
     };
     
     loadPrices();
-  }, []);
+  }, [onSelect]);
 
   const handleStandardSizeSelect = (index: number) => {
     setSelectedStandardIndex(index);
@@ -169,7 +173,13 @@ export default function ProductSelector({ onSelect, currentSelection }: ProductS
       {/* Standard Sizes */}
       {sizeType === 'standard' && (
         <div className="space-y-3 mb-6">
-          {standardSizes.map((size, index) => (
+          {isLoadingPrices && (
+            <div className="text-center py-4 text-paper-600">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-warm-600 mx-auto mb-2"></div>
+              Loading prices...
+            </div>
+          )}
+          {!isLoadingPrices && standardSizes.map((size, index) => (
             <div
               key={index}
               onClick={() => handleStandardSizeSelect(index)}
