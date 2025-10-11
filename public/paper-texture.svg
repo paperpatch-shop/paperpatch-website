@@ -1,0 +1,10 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="noise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" />
+      <feColorMatrix type="saturate" values="0" />
+      <feBlend mode="multiply" in="SourceGraphic" />
+    </filter>
+  </defs>
+  <rect width="200" height="200" fill="#faf8f5" filter="url(#noise)" opacity="0.3" />
+</svg>

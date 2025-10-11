@@ -1,0 +1,520 @@
+'use client';
+
+import { useState } from 'react';
+import { Upload, X, Plus, Image as ImageIcon, ArrowLeft, ChevronLeft, ChevronRight, Move } from 'lucide-react';
+import { OrderItem } from '@/lib/types';
+import { calculatePosterPrice } from '@/lib/pricing';
+
+interface ImageWithSize {
+  id: string;
+  file: File;
+  preview: string;
+  orderItem: OrderItem;
+  position: { x: number; y: number };
+  scale: number;
+}
+
+interface MultiImageUploadProps {
+  onContinue: (items: OrderItem[]) => void;
+  onBack: () => void;
+  initialItems?: OrderItem[];
+}
+
+// Background images
+const BACKGROUND_IMAGES = [
+  '/background-1.png',
+  '/background-2.png',
+  '/background-3.png',
+];
+
+// Poster size presets with scale ratios (0.5:0.75:1:1.5)
+const BASE_SIZE = 150;
+const POSTER_SIZES = [
+  { width: 12, height: 8, label: '12" × 8"', scale: 0.5 },
+  { width: 18, height: 12, label: '18" × 12"', scale: 0.75 },
+  { width: 24, height: 16, label: '24" × 16"', scale: 1 },
+  { width: 35, height: 24, label: '35" × 24"', scale: 1.5 },
+];
+
+export default function MultiImageUpload({ onContinue, onBack, initialItems }: MultiImageUploadProps) {
+  // Initialize from initialItems if provided
+  const [images, setImages] = useState<ImageWithSize[]>(() => {
+    if (initialItems && initialItems.length > 0) {
+      return initialItems.map((item, idx) => ({
+        id: `img-${Date.now()}-${idx}`,
+        file: item.imageFile!,
+        preview: item.imageUrl || '',
+        position: { x: 0, y: 0 },
+        scale: 1,
+        orderItem: item,
+      }));
+    }
+    return [];
+  });
+  const [selectedImageId, setSelectedImageId] = useState<string | null>(() => {
+    if (initialItems && initialItems.length > 0) {
+      return `img-${Date.now()}-0`;
+    }
+    return null;
+  });
+  const [currentBgIndex, setCurrentBgIndex] = useState(0);
+  const [error, setError] = useState('');
+  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
+
+  const validateFile = (file: File): boolean => {
+    if (!file.type.match(/image\/(jpeg|jpg|png)/)) {
+      setError('Please upload JPEG or PNG images only');
+      return false;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError('File size must be less than 10MB');
+      return false;
+    }
+    return true;
+  };
+
+  const handleFileSelect = (files: FileList | null) => {
+    if (!files) return;
+    setError('');
+
+    Array.from(files).forEach((file) => {
+      if (validateFile(file)) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const preview = e.target?.result as string;
+          const newImage: ImageWithSize = {
+            id: `img-${Date.now()}-${Math.random()}`,
+            file,
+            preview,
+            position: { x: 0, y: 0 },
+            scale: 1,
+            orderItem: {
+              width: 12,
+              height: 8,
+              withBoard: false,
+              price: calculatePosterPrice(12, 8, false),
+              imageFile: file,
+              imageUrl: preview,
+            },
+          };
+          setImages(prev => {
+            const updated = [...prev, newImage];
+            if (!selectedImageId) {
+              setSelectedImageId(newImage.id);
+            }
+            return updated;
+          });
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    handleFileSelect(e.dataTransfer.files);
+  };
+
+  const removeImage = (id: string) => {
+    setImages(images.filter(img => img.id !== id));
+    if (selectedImageId === id) {
+      setSelectedImageId(images.length > 1 ? images[0].id : null);
+    }
+  };
+
+  const updateImageSize = (id: string, sizeIndex: number) => {
+    const size = POSTER_SIZES[sizeIndex];
+    setImages(images.map(img => 
+      img.id === id 
+        ? { 
+            ...img, 
+            orderItem: { 
+              ...img.orderItem, 
+              width: size.width, 
+              height: size.height,
+              price: calculatePosterPrice(size.width, size.height, img.orderItem.withBoard)
+            } 
+          }
+        : img
+    ));
+  };
+
+  const updateBoardOption = (id: string, withBoard: boolean) => {
+    setImages(images.map(img => 
+      img.id === id 
+        ? { 
+            ...img, 
+            orderItem: { 
+              ...img.orderItem, 
+              withBoard,
+              price: calculatePosterPrice(img.orderItem.width, img.orderItem.height, withBoard)
+            } 
+          }
+        : img
+    ));
+  };
+
+  const handleImageDragStart = (e: React.MouseEvent, imageId: string) => {
+    e.stopPropagation();
+    setDragStart({ x: e.clientX, y: e.clientY });
+    setSelectedImageId(imageId);
+  };
+
+  const handleImageDrag = (e: React.MouseEvent, imageId: string) => {
+    if (!dragStart) return;
+    
+    const deltaX = e.clientX - dragStart.x;
+    const deltaY = e.clientY - dragStart.y;
+    
+    setImages(images.map(img => 
+      img.id === imageId
+        ? { ...img, position: { x: img.position.x + deltaX, y: img.position.y + deltaY } }
+        : img
+    ));
+    
+    setDragStart({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleImageDragEnd = () => {
+    setDragStart(null);
+  };
+
+  const getDisplayDimensions = (img: ImageWithSize) => {
+    const sizeIndex = POSTER_SIZES.findIndex(
+      s => s.width === img.orderItem.width && s.height === img.orderItem.height
+    );
+    const scale = POSTER_SIZES[sizeIndex]?.scale || 1;
+    const maxSize = BASE_SIZE * scale;
+    
+    const tempImg = new Image();
+    tempImg.src = img.preview;
+    const aspectRatio = tempImg.naturalWidth / tempImg.naturalHeight || 1;
+    
+    let width = maxSize;
+    let height = maxSize / aspectRatio;
+    
+    if (height > maxSize) {
+      height = maxSize;
+      width = maxSize * aspectRatio;
+    }
+    
+    return { width, height };
+  };
+
+  const nextBackground = () => {
+    setCurrentBgIndex((prev) => (prev + 1) % BACKGROUND_IMAGES.length);
+  };
+
+  const prevBackground = () => {
+    setCurrentBgIndex((prev) => (prev - 1 + BACKGROUND_IMAGES.length) % BACKGROUND_IMAGES.length);
+  };
+
+  const handleContinue = () => {
+    if (images.length === 0) {
+      setError('Please upload at least one image');
+      return;
+    }
+    onContinue(images.map(img => img.orderItem));
+  };
+
+  const getTotalPrice = () => {
+    return images.reduce((sum, img) => sum + img.orderItem.price, 0);
+  };
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Left Column - Upload & Poster Boxes */}
+      <div className="space-y-6">
+        {/* Upload Box */}
+        <div className="relative bg-card/80 backdrop-blur-sm rounded-2xl shadow-lg border border-[#E5D5C0] hover:border-[#C4A57B] transition-all duration-150 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500" />
+          <div className="relative p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <ImageIcon className="w-6 h-6 text-primary" />
+              <h2 className="text-2xl font-bold text-foreground">
+                Upload Images
+              </h2>
+            </div>
+
+            <div
+              onDrop={handleDrop}
+              onDragOver={(e) => e.preventDefault()}
+              className="relative rounded-xl text-center cursor-pointer transition-all p-2 group"
+              onClick={() => document.getElementById('multi-file-input')?.click()}
+            >
+              <input
+                id="multi-file-input"
+                type="file"
+                accept="image/jpeg,image/jpg,image/png"
+                multiple
+                onChange={(e) => handleFileSelect(e.target.files)}
+                className="hidden"
+              />
+              {/* Inner dashed frame */}
+              <div className="border-2 border-dashed border-[#E5D5C0] group-hover:border-[#C4A57B] rounded-xl bg-white/50 p-12 transition-all duration-150">
+                <div className="flex flex-col items-center justify-center">
+                  <div className="w-16 h-16 mb-4 rounded-full bg-[#C4A57B]/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                    <Plus className="w-8 h-8 text-[#8B6F47]" />
+                  </div>
+                  <p className="text-lg font-semibold text-[#6B5444] mb-2">
+                    {images.length === 0 ? 'Upload your images' : 'Add more images'}
+                  </p>
+                  <p className="text-sm text-[#9CA3AF]">
+                    Drop images here or click to browse
+                  </p>
+                  <p className="text-xs text-[#9CA3AF] mt-2">
+                    JPEG/PNG • Max 10MB each
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {error && (
+              <div className="mt-4 bg-destructive/10 border border-destructive/20 rounded-lg p-3 text-sm text-destructive">
+                {error}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Poster Boxes */}
+        {images.length > 0 && (
+          <div className="relative bg-card/80 backdrop-blur-sm rounded-2xl shadow-lg border border-[#E5D5C0] transition-all duration-150 overflow-hidden">
+            <div className="relative p-6">
+              <h3 className="text-xl font-bold text-foreground mb-4">Your Posters</h3>
+              <div className="space-y-4">
+                {images.map((img) => (
+                  <div
+                    key={img.id}
+                    className={`relative group flex items-start space-x-4 p-4 rounded-xl border transition-all duration-150 cursor-pointer overflow-hidden ${
+                      selectedImageId === img.id
+                        ? 'bg-white/50 border-[#C4A57B]'
+                        : 'bg-white/50 border-[#E5D5C0] hover:border-[#C4A57B]'
+                    }`}
+                    onClick={() => setSelectedImageId(img.id)}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    
+                    {/* Thumbnail */}
+                    <div className="relative z-10">
+                      <img
+                        src={img.preview}
+                        alt="Thumbnail"
+                        className="w-24 h-24 object-cover rounded-lg shadow-md"
+                      />
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeImage(img.id);
+                        }}
+                        className="absolute -top-1 -right-1 p-1 bg-[#8B6F47] hover:bg-[#6B5444] text-white rounded-full transition-colors shadow-md"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+
+                    {/* Controls */}
+                    <div className="flex-1 relative z-10">
+                      <p className="text-sm font-semibold text-foreground mb-2">Select Size:</p>
+                      <div className="grid grid-cols-2 gap-2 mb-3">
+                        {POSTER_SIZES.map((size, idx) => (
+                          <button
+                            key={idx}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              updateImageSize(img.id, idx);
+                            }}
+                            className={`py-2 px-3 rounded-lg font-medium text-sm transition-all duration-150 ${
+                              img.orderItem.width === size.width && img.orderItem.height === size.height
+                                ? 'bg-[#FFFEF9] text-[#6B5444] border-2 border-[#A67C52]'
+                                : 'bg-[#FEFEFE] border-2 border-[#E5E5E0] text-[#9CA3AF] hover:border-[#C4A57B] hover:bg-[#FFF9F0] hover:text-[#6B5444]'
+                            }`}
+                          >
+                            {size.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Board Selection */}
+                      <div className="mb-3">
+                        <p className="text-sm font-semibold text-foreground mb-2">Type:</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              updateBoardOption(img.id, false);
+                            }}
+                            className={`py-2 px-3 rounded-lg font-medium text-sm transition-all duration-150 flex items-center justify-center space-x-2 ${
+                              !img.orderItem.withBoard
+                                ? 'bg-[#FFFEF9] text-[#6B5444] border-2 border-[#A67C52]'
+                                : 'bg-[#FEFEFE] border-2 border-[#E5E5E0] text-[#9CA3AF] hover:border-[#C4A57B] hover:bg-[#FFF9F0] hover:text-[#6B5444]'
+                            }`}
+                          >
+                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                              !img.orderItem.withBoard ? 'border-[#6B5444]' : 'border-[#C4A57B]'
+                            }`}>
+                              {!img.orderItem.withBoard && (
+                                <div className="w-2 h-2 rounded-full bg-[#6B5444]"></div>
+                              )}
+                            </div>
+                            <span>Poster Sheet</span>
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              updateBoardOption(img.id, true);
+                            }}
+                            className={`py-2 px-3 rounded-lg font-medium text-sm transition-all duration-150 flex items-center justify-center space-x-2 ${
+                              img.orderItem.withBoard
+                                ? 'bg-[#FFFEF9] text-[#6B5444] border-2 border-[#A67C52]'
+                                : 'bg-[#FEFEFE] border-2 border-[#E5E5E0] text-[#9CA3AF] hover:border-[#C4A57B] hover:bg-[#FFF9F0] hover:text-[#6B5444]'
+                            }`}
+                          >
+                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                              img.orderItem.withBoard ? 'border-[#6B5444]' : 'border-[#C4A57B]'
+                            }`}>
+                              {img.orderItem.withBoard && (
+                                <div className="w-2 h-2 rounded-full bg-[#6B5444]"></div>
+                              )}
+                            </div>
+                            <span>Board Poster</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <p className="text-lg font-bold text-primary">
+                        ৳{img.orderItem.price}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Total */}
+              <div className="mt-6 bg-[#FFF9F0] backdrop-blur-sm border border-[#E5D5C0] rounded-xl p-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-foreground font-semibold">Total Posters Price:</span>
+                  <span className="text-2xl font-bold text-[#8B6F47]">
+                    ৳{getTotalPrice()}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  + Shipping cost (calculated at checkout)
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Right Column - Sticky Preview Window */}
+      {images.length > 0 && (
+        <div className="lg:sticky lg:top-8 h-fit">
+          <div className="relative bg-card/80 backdrop-blur-sm rounded-2xl shadow-lg border border-[#E5D5C0] transition-all duration-150 overflow-hidden">
+            <div className="relative p-6">
+              <h3 className="text-xl font-bold text-foreground mb-4">Preview</h3>
+
+              {/* Preview Container with Background */}
+              <div 
+                className="relative aspect-square bg-background rounded-xl overflow-hidden"
+                onClick={(e) => {
+                  // Deselect if clicking on background (not on an image)
+                  if (e.target === e.currentTarget) {
+                    setSelectedImageId(null);
+                  }
+                }}
+              >
+                {/* Background Image */}
+                <img
+                  src={BACKGROUND_IMAGES[currentBgIndex]}
+                  alt="Background"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+
+                {/* Background Navigation */}
+                <div className="absolute top-4 left-0 right-0 flex justify-between px-4 z-20">
+                  <button
+                    onClick={prevBackground}
+                    className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white border border-[#E5D5C0] rounded-full shadow-lg transition-colors"
+                  >
+                    <ChevronLeft className="w-5 h-5 text-[#6B5444]" />
+                  </button>
+                  <div className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-[#6B5444] border border-[#E5D5C0]">
+                    {currentBgIndex + 1} / {BACKGROUND_IMAGES.length}
+                  </div>
+                  <button
+                    onClick={nextBackground}
+                    className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white border border-[#E5D5C0] rounded-full shadow-lg transition-colors"
+                  >
+                    <ChevronRight className="w-5 h-5 text-[#6B5444]" />
+                  </button>
+                </div>
+
+                {/* All User Images Overlay */}
+                {images.map((img) => {
+                  const dims = getDisplayDimensions(img);
+                  return (
+                    <div
+                      key={img.id}
+                      className={`absolute cursor-move ${selectedImageId === img.id ? 'z-10' : 'z-5'}`}
+                      style={{
+                        left: '50%',
+                        top: '50%',
+                        transform: `translate(calc(-50% + ${img.position.x}px), calc(-50% + ${img.position.y}px))`,
+                      }}
+                      onMouseDown={(e) => handleImageDragStart(e, img.id)}
+                      onMouseMove={(e) => dragStart && selectedImageId === img.id ? handleImageDrag(e, img.id) : undefined}
+                      onMouseUp={handleImageDragEnd}
+                      onMouseLeave={handleImageDragEnd}
+                    >
+                      <div
+                        className={`relative shadow-2xl transition-all ${
+                          selectedImageId === img.id ? 'ring-2 ring-white' : ''
+                        }`}
+                        style={{
+                          width: `${dims.width}px`,
+                          height: `${dims.height}px`,
+                        }}
+                      >
+                        <img
+                          src={img.preview}
+                          alt="Preview"
+                          className="w-full h-full object-contain rounded-sm bg-white"
+                          draggable={false}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Drag hint */}
+                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1 z-30 text-[#6B5444] border border-[#E5D5C0]">
+                  <Move className="w-3 h-3" />
+                  <span>Drag to reposition • Click to select</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Action Buttons - Full Width at Bottom */}
+      <div className="lg:col-span-2 flex space-x-3">
+        <button
+          onClick={onBack}
+          className="px-6 py-3 bg-white/80 backdrop-blur-sm border border-[#E5D5C0] hover:border-[#C4A57B] rounded-xl font-semibold text-[#6B5444] transition-all duration-150 flex items-center space-x-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back</span>
+        </button>
+        <button
+          onClick={handleContinue}
+          disabled={images.length === 0}
+          className="flex-1 px-6 py-3 bg-[#8B6F47] hover:bg-[#6B5444] text-white rounded-xl font-bold text-lg transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl ring-2 ring-[#C4A57B]/30"
+        >
+          Continue to Checkout ({images.length} {images.length === 1 ? 'poster' : 'posters'})
+        </button>
+      </div>
+    </div>
+  );
+}

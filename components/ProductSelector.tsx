@@ -1,0 +1,261 @@
+'use client';
+
+import { useState } from 'react';
+import { STANDARD_SIZES, OrderItem } from '@/lib/types';
+import { calculatePosterPrice, validateCustomSize } from '@/lib/pricing';
+import { Ruler, CheckCircle2 } from 'lucide-react';
+
+interface ProductSelectorProps {
+  onSelect: (item: OrderItem) => void;
+  currentSelection: OrderItem;
+}
+
+export default function ProductSelector({ onSelect, currentSelection }: ProductSelectorProps) {
+  const [sizeType, setSizeType] = useState<'standard' | 'custom'>('standard');
+  const [selectedStandardIndex, setSelectedStandardIndex] = useState(0);
+  const [withBoard, setWithBoard] = useState(false);
+  const [customHeight, setCustomHeight] = useState('12');
+  const [customWidth, setCustomWidth] = useState('8');
+  const [error, setError] = useState('');
+
+  const handleStandardSizeSelect = (index: number) => {
+    setSelectedStandardIndex(index);
+    setError('');
+    const size = STANDARD_SIZES[index];
+    
+    // Check if board option is available for this size
+    const canHaveBoard = size.priceWithBoard !== undefined;
+    const finalWithBoard = canHaveBoard ? withBoard : false;
+    
+    if (!canHaveBoard && withBoard) {
+      setWithBoard(false);
+    }
+  };
+
+  const handleBoardToggle = (value: boolean) => {
+    setWithBoard(value);
+    setError('');
+    
+    if (sizeType === 'standard') {
+      const size = STANDARD_SIZES[selectedStandardIndex];
+      if (value && !size.priceWithBoard) {
+        setError('Board option not available for this size');
+        return;
+      }
+    }
+  };
+
+  const calculateCurrentPrice = () => {
+    if (sizeType === 'standard') {
+      const size = STANDARD_SIZES[selectedStandardIndex];
+      return withBoard && size.priceWithBoard 
+        ? size.priceWithBoard 
+        : size.priceWithoutBoard;
+    } else {
+      const height = parseFloat(customHeight) || 0;
+      const width = parseFloat(customWidth) || 0;
+      return calculatePosterPrice(width, height, withBoard);
+    }
+  };
+
+  const handleContinue = () => {
+    let width: number, height: number;
+
+    if (sizeType === 'standard') {
+      const size = STANDARD_SIZES[selectedStandardIndex];
+      width = size.width;
+      height = size.height;
+    } else {
+      height = parseFloat(customHeight);
+      width = parseFloat(customWidth);
+
+      const validation = validateCustomSize(height, width);
+      if (!validation.valid) {
+        setError(validation.error || 'Invalid size');
+        return;
+      }
+    }
+
+    const price = calculatePosterPrice(width, height, withBoard);
+
+    onSelect({
+      width,
+      height,
+      withBoard,
+      price,
+    });
+  };
+  const currentPrice = calculateCurrentPrice();
+
+  return (
+    <div className="paper-card p-6 paper-texture">
+      <div className="flex items-center space-x-2 mb-6">
+        <Ruler className="w-6 h-6 text-warm-600" />
+        <h2 className="text-2xl font-display font-bold text-paper-900">
+          Select Poster Size
+        </h2>
+      </div>
+
+      {/* Size Type Toggle */}
+      <div className="flex space-x-4 mb-6">
+        <button
+          onClick={() => setSizeType('standard')}
+          className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
+            sizeType === 'standard'
+              ? 'bg-warm-500 text-white shadow-md'
+              : 'bg-paper-100 text-paper-700 hover:bg-paper-200'
+          }`}
+        >
+          Standard Sizes
+        </button>
+        <button
+          onClick={() => setSizeType('custom')}
+          className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
+            sizeType === 'custom'
+              ? 'bg-warm-500 text-white shadow-md'
+              : 'bg-paper-100 text-paper-700 hover:bg-paper-200'
+          }`}
+        >
+          Custom Size
+        </button>
+      </div>
+
+      {/* Standard Sizes */}
+      {sizeType === 'standard' && (
+        <div className="space-y-3 mb-6">
+          {STANDARD_SIZES.map((size, index) => (
+            <div
+              key={index}
+              onClick={() => handleStandardSizeSelect(index)}
+              className={`radio-card ${
+                selectedStandardIndex === index ? 'radio-card-selected' : ''
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div
+                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      selectedStandardIndex === index
+                        ? 'border-warm-500 bg-warm-500'
+                        : 'border-paper-400'
+                    }`}
+                  >
+                    {selectedStandardIndex === index && (
+                      <CheckCircle2 className="w-4 h-4 text-white" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-paper-900">{size.label}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-warm-700">
+                    ৳{withBoard && size.priceWithBoard ? size.priceWithBoard : size.priceWithoutBoard}
+                  </p>
+                  {!size.priceWithBoard && (
+                    <p className="text-xs text-paper-500">No board option</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Custom Size */}
+      {sizeType === 'custom' && (
+        <div className="space-y-4 mb-6">
+          <div>
+            <label className="block text-sm font-medium text-paper-700 mb-2">
+              Height (inches) - Minimum 12"
+            </label>
+            <input
+              type="number"
+              min="12"
+              max="60"
+              step="0.5"
+              value={customHeight}
+              onChange={(e) => {
+                setCustomHeight(e.target.value);
+                setError('');
+              }}
+              className="input-field"
+              placeholder="e.g., 12"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-paper-700 mb-2">
+              Width (inches)
+            </label>
+            <input
+              type="number"
+              min="1"
+              max="60"
+              step="0.5"
+              value={customWidth}
+              onChange={(e) => {
+                setCustomWidth(e.target.value);
+                setError('');
+              }}
+              className="input-field"
+              placeholder="e.g., 8"
+            />
+          </div>
+          {error && (
+            <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">
+              {error}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Board Option */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-paper-700 mb-3">
+          Board Option
+        </label>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={() => handleBoardToggle(false)}
+            className={`radio-card ${!withBoard ? 'radio-card-selected' : ''}`}
+          >
+            <div className="text-center">
+              <p className="font-semibold text-paper-900">Without Board</p>
+              <p className="text-xs text-paper-600 mt-1">Paper only</p>
+            </div>
+          </button>
+          <button
+            onClick={() => handleBoardToggle(true)}
+            className={`radio-card ${withBoard ? 'radio-card-selected' : ''}`}
+          >
+            <div className="text-center">
+              <p className="font-semibold text-paper-900">With Board</p>
+              <p className="text-xs text-paper-600 mt-1">Mounted on board</p>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* Price Summary */}
+      <div className="bg-warm-50 border-2 border-warm-200 rounded-lg p-4 mb-6">
+        <div className="flex justify-between items-center">
+          <span className="text-paper-700 font-medium">Poster Price:</span>
+          <span className="text-2xl font-bold text-warm-700">
+            ৳{currentPrice}
+          </span>
+        </div>
+        <p className="text-xs text-paper-600 mt-2">
+          + Shipping cost (calculated at checkout)
+        </p>
+      </div>
+
+      {/* Continue Button */}
+      <button
+        onClick={handleContinue}
+        className="btn-primary w-full"
+      >
+        Continue to Upload Image
+      </button>
+    </div>
+  );
+}
