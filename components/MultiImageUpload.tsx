@@ -272,7 +272,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-24 lg:pb-6">
       {/* Left Column - Upload & Poster Boxes */}
       <div className="space-y-6">
         {/* Upload Box */}
@@ -466,14 +466,14 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
 
       {/* Right Column - Sticky Preview Window */}
       {images.length > 0 && (
-        <div className="lg:sticky lg:top-8 h-fit">
+        <div className="lg:sticky lg:top-8 lg:bottom-24 h-fit lg:self-start">
           <div className="relative bg-card/80 backdrop-blur-sm rounded-2xl shadow-lg border border-[#E5D5C0] transition-all duration-150 overflow-hidden">
             <div className="relative p-3 sm:p-6">
               <h3 className="text-lg sm:text-xl font-bold text-foreground mb-3 sm:mb-4">Preview</h3>
 
               {/* Preview Container with Background */}
               <div 
-                className="relative aspect-square bg-background rounded-xl overflow-hidden"
+                className="relative w-full bg-white rounded-xl overflow-hidden aspect-square max-h-[70vh] lg:max-h-none"
                 onClick={(e) => {
                   // Deselect if clicking on background (not on an image)
                   if (e.target === e.currentTarget) {
@@ -559,11 +559,11 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
         </div>
       )}
 
-      {/* Action Buttons - Full Width at Bottom */}
-      <div className="lg:col-span-2 flex space-x-3">
+      {/* Action Buttons - Fixed at Bottom on Mobile, Normal on Desktop */}
+      <div className="fixed bottom-0 left-0 right-0 lg:relative lg:col-span-2 flex space-x-3 p-4 lg:p-0 bg-[#FFF9F0] lg:bg-transparent border-t lg:border-t-0 border-[#E5D5C0] z-50">
         <button
           onClick={onBack}
-          className="px-6 py-3 bg-white/80 backdrop-blur-sm border border-[#E5D5C0] hover:border-[#C4A57B] rounded-xl font-semibold text-[#6B5444] transition-all duration-150 flex items-center space-x-2"
+          className="px-4 lg:px-6 py-3 bg-white/80 backdrop-blur-sm border border-[#E5D5C0] hover:border-[#C4A57B] rounded-xl font-semibold text-[#6B5444] transition-all duration-150 flex items-center space-x-2"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back</span>
@@ -571,7 +571,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
         <button
           onClick={handleContinue}
           disabled={images.length === 0}
-          className="flex-1 px-6 py-3 bg-[#8B6F47] hover:bg-[#6B5444] text-white rounded-xl font-bold text-lg transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl ring-2 ring-[#C4A57B]/30"
+          className="flex-1 px-4 lg:px-6 py-3 bg-[#8B6F47] hover:bg-[#6B5444] text-white rounded-xl font-bold text-base lg:text-lg transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-xl ring-2 ring-[#C4A57B]/30"
         >
           Continue to Checkout ({images.length} {images.length === 1 ? 'poster' : 'posters'})
         </button>
