@@ -40,7 +40,7 @@ export default function Homepage() {
                 unoptimized
               />
             </div>
-            <p className="text-xl md:text-2xl text-[#6B5444] drop-shadow-lg font-semibold">
+            <p className="text-2xl md:text-3xl text-[#6B5444] drop-shadow-lg font-mono font-medium">
               Home of High-Quality Custom Posters Since 2021
             </p>
           </div>
@@ -122,9 +122,25 @@ export default function Homepage() {
 
           {/* Footer text */}
           <div className="text-center mt-12">
-            <p className="text-[#6B5444]/70 text-sm">
-              Handcrafted with care
-            </p>
+            <a 
+              href="https://instagram.com/paperpatchbd/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-base md:text-lg text-[#6B5444]/80 hover:text-[#8B6F47] transition-colors duration-200 group"
+            >
+              <span className="font-light">Reach us on</span>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#E5D5C0]/40 backdrop-blur-sm hover:bg-[#E5D5C0]/60 rounded-full text-[#6B5444] shadow-sm group-hover:shadow-md transition-all duration-200 group-hover:scale-105">
+                <Image 
+                  src="/instagram-icon.svg" 
+                  alt="Instagram" 
+                  width={16} 
+                  height={16}
+                  className="w-4 h-4"
+                />
+                <span className="font-medium text-sm">Instagram</span>
+              </div>
+              <span className="font-light">for any query</span>
+            </a>
           </div>
         </div>
       </div>

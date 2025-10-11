@@ -277,7 +277,7 @@ export default function CheckoutForm({ orderItem, orderItems, onSubmit, onBack }
               <ol className="text-sm text-[#6B5444]/80 space-y-1 mb-3">
                 <li>1. Send money to: <strong>01822705659</strong></li>
                 <li>2. Enter the transaction ID below</li>
-                <li>3. Your order will be confirmed after verification</li>
+                <li>3. Your order will be confirmed by admin after verification</li>
               </ol>
               <input
                 type="text"

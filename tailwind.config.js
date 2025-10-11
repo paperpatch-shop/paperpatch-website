@@ -46,8 +46,9 @@ module.exports = {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Poppins', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-dm-sans)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-dm-sans)', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-dm-mono)', 'monospace'],
       },
       backgroundImage: {
         'paper-texture': "url('/paper-texture.svg')",
