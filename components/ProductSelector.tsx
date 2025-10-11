@@ -12,6 +12,8 @@ interface ProductSelectorProps {
 }
 
 export default function ProductSelector({ onSelect, currentSelection }: ProductSelectorProps) {
+  console.log('[ProductSelector] Component rendered');
+  
   const [standardSizes, setStandardSizes] = useState<StandardSize[]>(DEFAULT_SIZES);
   const [isLoadingPrices, setIsLoadingPrices] = useState(true);
   const [sizeType, setSizeType] = useState<'standard' | 'custom'>('standard');
@@ -23,10 +25,11 @@ export default function ProductSelector({ onSelect, currentSelection }: ProductS
 
   // Load prices from Supabase on mount
   useEffect(() => {
+    console.log('[ProductSelector] useEffect triggered');
     const loadPrices = async () => {
-      console.log('Loading prices from Supabase...');
+      console.log('[ProductSelector] Loading prices from Supabase...');
       const loadedSizes = await getPrices();
-      console.log('Loaded prices:', loadedSizes);
+      console.log('[ProductSelector] Loaded prices:', loadedSizes);
       setStandardSizes(loadedSizes);
       setIsLoadingPrices(false);
       

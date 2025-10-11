@@ -10,22 +10,32 @@ export const supabase = supabaseUrl && supabaseAnonKey
 
 // Get current prices from Supabase
 export async function getPrices(): Promise<StandardSize[]> {
+  console.log('[getPrices] Function called');
+  
   if (!supabase) {
-    console.warn('Supabase not configured. Using default prices.');
+    console.warn('[getPrices] Supabase not configured. Using default prices.');
     return DEFAULT_SIZES;
   }
 
   try {
+    console.log('[getPrices] Fetching from Supabase...');
     const { data, error } = await supabase
       .from('prices')
       .select('sizes')
       .eq('id', 'default')
       .single();
 
-    if (error) throw error;
-    return data?.sizes || DEFAULT_SIZES;
+    if (error) {
+      console.error('[getPrices] Supabase error:', error);
+      throw error;
+    }
+    
+    console.log('[getPrices] Data received:', data);
+    const prices = data?.sizes || DEFAULT_SIZES;
+    console.log('[getPrices] Returning prices:', prices);
+    return prices;
   } catch (error) {
-    console.error('Error fetching prices:', error);
+    console.error('[getPrices] Error fetching prices:', error);
     return DEFAULT_SIZES;
   }
 }
