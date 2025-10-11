@@ -41,7 +41,7 @@ export default function Homepage() {
               />
             </div>
             <p className="text-xl md:text-2xl text-[#6B5444] drop-shadow-lg font-semibold">
-              Custom Posters
+              Home of High-Quality Custom Posters Since 2021
             </p>
           </div>
 
