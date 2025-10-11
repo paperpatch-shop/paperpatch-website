@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Upload, X, Plus, Image as ImageIcon, ArrowLeft, ChevronLeft, ChevronRight, Move } from 'lucide-react';
-import { OrderItem } from '@/lib/types';
+import { OrderItem, StandardSize } from '@/lib/types';
+import { getPrices } from '@/lib/supabase';
 import { calculatePosterPrice } from '@/lib/pricing';
 
 interface ImageWithSize {
@@ -37,6 +38,9 @@ const POSTER_SIZES = [
 ];
 
 export default function MultiImageUpload({ onContinue, onBack, initialItems }: MultiImageUploadProps) {
+  const [priceData, setPriceData] = useState<StandardSize[]>([]);
+  const [isLoadingPrices, setIsLoadingPrices] = useState(true);
+  
   // Initialize from initialItems if provided
   const [images, setImages] = useState<ImageWithSize[]>(() => {
     if (initialItems && initialItems.length > 0) {
@@ -60,6 +64,28 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
   const [error, setError] = useState('');
   const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
+
+  // Load prices from Supabase
+  useEffect(() => {
+    console.log('[MultiImageUpload] Loading prices...');
+    const loadPrices = async () => {
+      const prices = await getPrices();
+      console.log('[MultiImageUpload] Prices loaded:', prices);
+      setPriceData(prices);
+      setIsLoadingPrices(false);
+    };
+    loadPrices();
+  }, []);
+
+  // Helper function to get price for a size
+  const getPriceForSize = (width: number, height: number, withBoard: boolean): number => {
+    const sizeData = priceData.find(s => s.width === width && s.height === height);
+    if (sizeData) {
+      return withBoard && sizeData.priceWithBoard ? sizeData.priceWithBoard : sizeData.priceWithoutBoard;
+    }
+    // Fallback to calculated price
+    return calculatePosterPrice(width, height, withBoard);
+  };
 
   const validateFile = (file: File): boolean => {
     if (!file.type.match(/image\/(jpeg|jpg|png)/)) {
@@ -92,7 +118,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
               width: 12,
               height: 8,
               withBoard: false,
-              price: calculatePosterPrice(12, 8, false),
+              price: getPriceForSize(12, 8, false),
               imageFile: file,
               imageUrl: preview,
             },
@@ -132,7 +158,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
               ...img.orderItem, 
               width: size.width, 
               height: size.height,
-              price: calculatePosterPrice(size.width, size.height, img.orderItem.withBoard)
+              price: getPriceForSize(size.width, size.height, img.orderItem.withBoard)
             } 
           }
         : img
@@ -147,7 +173,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
             orderItem: { 
               ...img.orderItem, 
               withBoard,
-              price: calculatePosterPrice(img.orderItem.width, img.orderItem.height, withBoard)
+              price: getPriceForSize(img.orderItem.width, img.orderItem.height, withBoard)
             } 
           }
         : img
