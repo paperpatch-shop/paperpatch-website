@@ -41,7 +41,7 @@ export default function Homepage() {
               />
             </div>
             <p className="text-xl md:text-2xl text-[#6B5444] drop-shadow-lg font-semibold">
-              Transform Your Memories Into Art
+              Custom Posters
             </p>
           </div>
 
@@ -101,7 +101,7 @@ export default function Homepage() {
                   </h2>
                   
                   <p className="text-lg text-white/95 mb-6 max-w-md font-medium">
-                    Upload your photos and create stunning custom poster prints in minutes
+                    Upload your photos and create high-quality custom poster prints in minutes
                   </p>
                   
                   <div className="flex items-center space-x-2 text-white font-bold text-lg group-hover:translate-x-2 transition-transform duration-150 bg-white/20 px-6 py-3 rounded-full">
@@ -123,7 +123,7 @@ export default function Homepage() {
           {/* Footer text */}
           <div className="text-center mt-12">
             <p className="text-[#6B5444]/70 text-sm">
-              Handcrafted with care in Dhaka, Bangladesh
+              Handcrafted with care
             </p>
           </div>
         </div>
