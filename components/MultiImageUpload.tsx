@@ -65,6 +65,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
   const [error, setError] = useState('');
   const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const isDraggingRef = useRef(false);
   const dragImageIdRef = useRef<string | null>(null);
 
@@ -202,6 +203,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
     
     isDraggingRef.current = true;
     dragImageIdRef.current = imageId;
+    setIsDragging(true);
     setDragStart({ x: clientX, y: clientY });
     setSelectedImageId(imageId);
   }, []);
@@ -228,6 +230,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
   const handleImageDragEnd = useCallback(() => {
     isDraggingRef.current = false;
     dragImageIdRef.current = null;
+    setIsDragging(false);
     setDragStart(null);
   }, []);
 
@@ -546,11 +549,14 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                   return (
                     <div
                       key={img.id}
-                      className={`absolute cursor-move touch-none ${selectedImageId === img.id ? 'z-10' : 'z-5'}`}
+                      className={`absolute touch-none ${selectedImageId === img.id ? 'z-10' : 'z-5'}`}
                       style={{
                         left: '50%',
                         top: '50%',
                         transform: `translate(calc(-50% + ${img.position.x}px), calc(-50% + ${img.position.y}px))`,
+                        cursor: isDragging && dragImageIdRef.current === img.id 
+                          ? "url('/cursors/move.svg') 12 12, grabbing" 
+                          : "url('/cursors/pointer.svg') 10 5, grab"
                       }}
                       onMouseDown={(e) => handleImageDragStart(e, img.id)}
                       onTouchStart={(e) => handleImageDragStart(e, img.id)}
