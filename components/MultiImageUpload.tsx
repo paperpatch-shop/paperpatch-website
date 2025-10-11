@@ -388,10 +388,14 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
+                              if (img.orderItem.width === 35 && img.orderItem.height === 24) return;
                               updateBoardOption(img.id, true);
                             }}
+                            disabled={img.orderItem.width === 35 && img.orderItem.height === 24}
                             className={`py-2 px-3 rounded-lg font-medium text-sm transition-all duration-150 flex items-center justify-center space-x-2 ${
-                              img.orderItem.withBoard
+                              img.orderItem.width === 35 && img.orderItem.height === 24
+                                ? 'bg-gray-100 border-2 border-gray-300 text-gray-400 cursor-not-allowed'
+                                : img.orderItem.withBoard
                                 ? 'bg-[#FFFEF9] text-[#6B5444] border-2 border-[#A67C52]'
                                 : 'bg-[#FEFEFE] border-2 border-[#E5E5E0] text-[#9CA3AF] hover:border-[#C4A57B] hover:bg-[#FFF9F0] hover:text-[#6B5444]'
                             }`}
@@ -406,6 +410,9 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                             <span>Board Poster</span>
                           </button>
                         </div>
+                        {img.orderItem.width === 35 && img.orderItem.height === 24 && (
+                          <p className="text-xs text-gray-500 mt-1">Board option not available for 35" × 24"</p>
+                        )}
                       </div>
 
                       <p className="text-lg font-bold text-primary">

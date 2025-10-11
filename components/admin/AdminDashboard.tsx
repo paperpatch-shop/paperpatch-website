@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { 
   LogOut, 
   Package, 
@@ -102,12 +103,17 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Link href="/" className="flex items-center space-x-3 group">
-                <div className="bg-warm-500 p-2 rounded-lg shadow-md">
-                  <FileText className="w-6 h-6 text-white" />
-                </div>
-                <div>
+                <Image
+                  src="/logo.png"
+                  alt="Paperpatch"
+                  width={150}
+                  height={50}
+                  className="h-12 w-auto"
+                  priority
+                />
+                <div className="border-l-2 border-paper-300 pl-3">
                   <h1 className="text-xl font-display font-bold text-paper-900">
-                    Paperpatch Admin
+                    Admin Panel
                   </h1>
                   <p className="text-xs text-paper-600">Order Management</p>
                 </div>
