@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Lock, Shield } from 'lucide-react';
+import Image from 'next/image';
 import AdminLogin from '@/components/admin/AdminLogin';
 import AdminDashboard from '@/components/admin/AdminDashboard';
 
@@ -57,8 +58,15 @@ export default function AdminPage() {
         <div className="flex items-center justify-center min-h-screen p-4">
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-warm-500 rounded-full mb-4">
-                <Shield className="w-8 h-8 text-white" />
+              <div className="mb-6">
+                <Image
+                  src="/logo.png"
+                  alt="Paperpatch Admin"
+                  width={200}
+                  height={67}
+                  className="mx-auto"
+                  priority
+                />
               </div>
               <h1 className="text-3xl font-display font-bold text-paper-900 mb-2">
                 Admin Dashboard

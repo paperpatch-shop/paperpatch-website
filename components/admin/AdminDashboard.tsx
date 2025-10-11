@@ -11,11 +11,13 @@ import {
   TrendingUp,
   Filter,
   Search,
-  FileText
+  FileText,
+  Settings
 } from 'lucide-react';
 import { getOrders } from '@/lib/supabase';
 import { Order, AdminStats } from '@/lib/types';
 import OrderCard from './OrderCard';
+import PriceManager from './PriceManager';
 import Link from 'next/link';
 
 interface AdminDashboardProps {
@@ -35,6 +37,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [showPriceManager, setShowPriceManager] = useState(false);
 
   useEffect(() => {
     loadOrders();
@@ -110,13 +113,22 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
                 </div>
               </Link>
             </div>
-            <button
-              onClick={onLogout}
-              className="flex items-center space-x-2 text-paper-600 hover:text-red-600 transition-colors"
-            >
-              <LogOut className="w-5 h-5" />
-              <span className="hidden sm:inline">Logout</span>
-            </button>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setShowPriceManager(true)}
+                className="flex items-center space-x-2 px-4 py-2 bg-[#8B6F47] hover:bg-[#6B5444] text-white rounded-lg transition-colors font-medium"
+              >
+                <Settings className="w-5 h-5" />
+                <span className="hidden sm:inline">Manage Prices</span>
+              </button>
+              <button
+                onClick={onLogout}
+                className="flex items-center space-x-2 text-paper-600 hover:text-red-600 transition-colors"
+              >
+                <LogOut className="w-5 h-5" />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -228,6 +240,11 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
           </div>
         )}
       </main>
+
+      {/* Price Manager Modal */}
+      {showPriceManager && (
+        <PriceManager onClose={() => setShowPriceManager(false)} />
+      )}
     </div>
   );
 }

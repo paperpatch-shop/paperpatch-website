@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { STANDARD_SIZES, OrderItem } from '@/lib/types';
+import { useState, useEffect } from 'react';
+import { DEFAULT_SIZES, OrderItem, StandardSize } from '@/lib/types';
+import { getPrices } from '@/lib/supabase';
 import { calculatePosterPrice, validateCustomSize } from '@/lib/pricing';
 import { Ruler, CheckCircle2 } from 'lucide-react';
 
@@ -11,6 +12,7 @@ interface ProductSelectorProps {
 }
 
 export default function ProductSelector({ onSelect, currentSelection }: ProductSelectorProps) {
+  const [standardSizes, setStandardSizes] = useState<StandardSize[]>(DEFAULT_SIZES);
   const [sizeType, setSizeType] = useState<'standard' | 'custom'>('standard');
   const [selectedStandardIndex, setSelectedStandardIndex] = useState(0);
   const [withBoard, setWithBoard] = useState(false);
@@ -18,10 +20,33 @@ export default function ProductSelector({ onSelect, currentSelection }: ProductS
   const [customWidth, setCustomWidth] = useState('8');
   const [error, setError] = useState('');
 
+  // Load prices from Supabase on mount
+  useEffect(() => {
+    const loadPrices = async () => {
+      const loadedSizes = await getPrices();
+      setStandardSizes(loadedSizes);
+      
+      // Trigger initial selection with loaded prices
+      const size = loadedSizes[selectedStandardIndex];
+      const price = withBoard && size.priceWithBoard 
+        ? size.priceWithBoard 
+        : size.priceWithoutBoard;
+      
+      onSelect({
+        width: size.width,
+        height: size.height,
+        withBoard: withBoard,
+        price: price,
+      });
+    };
+    
+    loadPrices();
+  }, []);
+
   const handleStandardSizeSelect = (index: number) => {
     setSelectedStandardIndex(index);
     setError('');
-    const size = STANDARD_SIZES[index];
+    const size = standardSizes[index];
     
     // Check if board option is available for this size
     const canHaveBoard = size.priceWithBoard !== undefined;
@@ -30,24 +55,45 @@ export default function ProductSelector({ onSelect, currentSelection }: ProductS
     if (!canHaveBoard && withBoard) {
       setWithBoard(false);
     }
+
+    // Update parent with new selection and price
+    const price = finalWithBoard && size.priceWithBoard 
+      ? size.priceWithBoard 
+      : size.priceWithoutBoard;
+    
+    onSelect({
+      width: size.width,
+      height: size.height,
+      withBoard: finalWithBoard,
+      price: price,
+    });
   };
 
-  const handleBoardToggle = (value: boolean) => {
-    setWithBoard(value);
+  const handleBoardToggle = (hasBoard: boolean) => {
+    setWithBoard(hasBoard);
     setError('');
-    
-    if (sizeType === 'standard') {
-      const size = STANDARD_SIZES[selectedStandardIndex];
-      if (value && !size.priceWithBoard) {
-        setError('Board option not available for this size');
-        return;
-      }
+    const size = standardSizes[selectedStandardIndex];
+    if (hasBoard && !size.priceWithBoard) {
+      setError('Board option not available for this size');
+      return;
     }
+
+    // Update parent with new price
+    const price = hasBoard && size.priceWithBoard 
+      ? size.priceWithBoard 
+      : size.priceWithoutBoard;
+    
+    onSelect({
+      width: size.width,
+      height: size.height,
+      withBoard: hasBoard,
+      price: price,
+    });
   };
 
   const calculateCurrentPrice = () => {
     if (sizeType === 'standard') {
-      const size = STANDARD_SIZES[selectedStandardIndex];
+      const size = standardSizes[selectedStandardIndex];
       return withBoard && size.priceWithBoard 
         ? size.priceWithBoard 
         : size.priceWithoutBoard;
@@ -62,7 +108,7 @@ export default function ProductSelector({ onSelect, currentSelection }: ProductS
     let width: number, height: number;
 
     if (sizeType === 'standard') {
-      const size = STANDARD_SIZES[selectedStandardIndex];
+      const size = standardSizes[selectedStandardIndex];
       width = size.width;
       height = size.height;
     } else {
@@ -123,7 +169,7 @@ export default function ProductSelector({ onSelect, currentSelection }: ProductS
       {/* Standard Sizes */}
       {sizeType === 'standard' && (
         <div className="space-y-3 mb-6">
-          {STANDARD_SIZES.map((size, index) => (
+          {standardSizes.map((size, index) => (
             <div
               key={index}
               onClick={() => handleStandardSizeSelect(index)}

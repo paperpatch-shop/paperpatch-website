@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { StandardSize, DEFAULT_SIZES } from './types';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -6,6 +7,52 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 export const supabase = supabaseUrl && supabaseAnonKey 
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null;
+
+// Get current prices from Supabase
+export async function getPrices(): Promise<StandardSize[]> {
+  if (!supabase) {
+    console.warn('Supabase not configured. Using default prices.');
+    return DEFAULT_SIZES;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('prices')
+      .select('sizes')
+      .eq('id', 'default')
+      .single();
+
+    if (error) throw error;
+    return data?.sizes || DEFAULT_SIZES;
+  } catch (error) {
+    console.error('Error fetching prices:', error);
+    return DEFAULT_SIZES;
+  }
+}
+
+// Save prices to Supabase
+export async function savePrices(prices: StandardSize[]): Promise<boolean> {
+  if (!supabase) {
+    console.warn('Supabase not configured. Prices not saved.');
+    return false;
+  }
+
+  try {
+    const { error } = await supabase
+      .from('prices')
+      .upsert({
+        id: 'default',
+        sizes: prices,
+        updated_at: new Date().toISOString(),
+      });
+
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error('Error saving prices:', error);
+    return false;
+  }
+}
 
 export async function uploadImage(file: File, orderId: string): Promise<string | null> {
   if (!supabase) {

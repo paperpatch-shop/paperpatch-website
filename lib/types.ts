@@ -12,12 +12,14 @@ export interface StandardSize {
   priceWithBoard?: number;
 }
 
-export const STANDARD_SIZES: StandardSize[] = [
+export const DEFAULT_SIZES: StandardSize[] = [
   { label: '12" × 8"', width: 12, height: 8, priceWithoutBoard: 350, priceWithBoard: 450 },
   { label: '18" × 12"', width: 18, height: 12, priceWithoutBoard: 550, priceWithBoard: 700 },
   { label: '24" × 16"', width: 24, height: 16, priceWithoutBoard: 850, priceWithBoard: 1050 },
   { label: '35" × 24"', width: 35, height: 24, priceWithoutBoard: 1500 },
 ];
+
+export const STANDARD_SIZES: StandardSize[] = DEFAULT_SIZES;
 
 export const SHIPPING_COST = {
   INSIDE_DHAKA: 80,
