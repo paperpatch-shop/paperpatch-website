@@ -6,6 +6,45 @@
   body {
     @apply text-paper-900;
   }
+
+  /* Custom cursor styles - using external SVG files */
+  body {
+    cursor: url('/cursors/arrow.svg') 0 0, auto;
+  }
+
+  /* Apply pointer cursor to all clickable elements */
+  button,
+  a,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="file"],
+  select,
+  .cursor-pointer {
+    cursor: url('/cursors/pointer.svg') 12 12, pointer !important;
+  }
+
+  .cursor-pointer-custom {
+    cursor: url('/cursors/pointer.svg') 12 12, pointer;
+  }
+
+  .cursor-not-allowed-custom,
+  button:disabled,
+  [disabled] {
+    cursor: url('/cursors/not-allowed.svg') 12 12, not-allowed !important;
+  }
+
+  .cursor-move-custom {
+    cursor: url('/cursors/move.svg') 12 12, move;
+  }
+
+  .cursor-grab-custom {
+    cursor: url('/cursors/pointer.svg') 12 12, grab;
+  }
+
+  .cursor-grabbing-custom {
+    cursor: url('/cursors/move.svg') 12 12, grabbing;
+  }
 }
 
 @layer components {
