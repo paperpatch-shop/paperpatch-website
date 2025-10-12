@@ -16,9 +16,9 @@ const dmMono = DM_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Paperpatch - Custom Poster Prints in Bangladesh | High-Quality Photo Prints BD',
-  description: 'Order custom poster prints in Bangladesh. High-quality photo prints, personalized wall art, and handmade posters delivered across Dhaka and Bangladesh. Affordable prices, fast delivery.',
-  keywords: 'custom posters Bangladesh, poster printing BD, photo prints Dhaka, personalized posters, wall art Bangladesh, custom prints BD, poster shop Dhaka, photo printing Bangladesh, handmade posters',
+  title: 'Paperpatch - Custom Self-Adhesive Poster Prints in Bangladesh | Photo Prints BD',
+  description: 'Order custom self-adhesive poster prints in Bangladesh. High-quality photo prints, personalized wall art, and handmade glue posters delivered across Dhaka and Bangladesh. Affordable prices, fast delivery.',
+  keywords: 'custom posters Bangladesh, self adhesive posters BD, glue posters Dhaka, poster printing BD, photo prints Dhaka, personalized posters, wall art Bangladesh, custom prints BD, poster shop Dhaka, photo printing Bangladesh, handmade posters, adhesive wall art',
   authors: [{ name: 'Paperpatch' }],
   creator: 'Paperpatch',
   publisher: 'Paperpatch',
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'your-google-verification-code', // Add your Google Search Console verification code
+    google: 'google-site-verification=YGsY_bIaKiLyeEuYaULx3a7u3mNtNs18359_cmBlntM', // Add your Google Search Console verification code
   },
 }
 

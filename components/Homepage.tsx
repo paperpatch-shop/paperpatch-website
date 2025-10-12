@@ -41,11 +41,8 @@ export default function Homepage() {
               />
             </div>
             <h1 className="text-2xl md:text-3xl text-[#6B5444] drop-shadow-lg font-mono font-medium">
-              Custom Poster Prints in Bangladesh | High-Quality Photo Prints Since 2021
+              Home of High-Quality Custom Posters Since 2021
             </h1>
-            <p className="text-base md:text-lg text-[#6B5444]/80 mt-2 font-light max-w-2xl mx-auto">
-              Personalized wall art, handmade posters, and professional photo printing delivered across Dhaka and Bangladesh
-            </p>
           </div>
 
           {/* Two Large Sections */}
@@ -61,11 +58,11 @@ export default function Homepage() {
                   </div>
                   
                   <h2 className="text-3xl md:text-4xl font-bold text-[#6B5444] mb-4">
-                    Poster Gallery
+                    Gallery
                   </h2>
                   
                   <p className="text-lg text-[#6B5444]/80 mb-6 max-w-md">
-                    Browse custom poster designs and photo prints from Bangladesh. Get inspiration for your personalized wall art
+                    Explore our collection of beautiful poster prints and see what our customers are creating
                   </p>
                   
                   <div className="flex items-center space-x-2 text-[#8B6F47] font-semibold group-hover:translate-x-2 transition-transform duration-150">
@@ -100,11 +97,11 @@ export default function Homepage() {
                   </div>
                   
                   <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                    Create Custom Posters
+                    Start Creating
                   </h2>
                   
                   <p className="text-lg text-white/95 mb-6 max-w-md font-medium">
-                    Upload photos and design personalized posters online. Fast printing and delivery in Bangladesh
+                    Upload your photos and create high-quality custom poster prints in minutes
                   </p>
                   
                   <div className="flex items-center space-x-2 text-white font-bold text-lg group-hover:translate-x-2 transition-transform duration-150 bg-white/20 px-6 py-3 rounded-full">

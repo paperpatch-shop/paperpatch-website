@@ -3,7 +3,7 @@ export default function StructuredData() {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name: 'Paperpatch',
-    description: 'Custom poster prints and photo printing service in Bangladesh',
+    description: 'Custom self-adhesive poster prints and photo printing service in Bangladesh',
     url: 'https://paperpatch.vercel.app',
     logo: 'https://paperpatch.vercel.app/logo.png',
     image: 'https://paperpatch.vercel.app/logo.png',
@@ -33,8 +33,8 @@ export default function StructuredData() {
           '@type': 'Offer',
           itemOffered: {
             '@type': 'Service',
-            name: 'Custom Poster Prints',
-            description: 'High-quality custom poster printing service',
+            name: 'Custom Self-Adhesive Poster Prints',
+            description: 'High-quality custom self-adhesive poster printing service',
           },
         },
         {
