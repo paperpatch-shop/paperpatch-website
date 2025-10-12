@@ -16,6 +16,18 @@
     cursor: url('/cursors/arrow.svg') 5 3, auto;
   }
 
+  /* Text selection I-beam cursor */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="url"],
+  textarea,
+  [contenteditable="true"] {
+    cursor: url('/cursors/highlighter.svg') 0 20, text !important;
+  }
+
   /* Apply pointer cursor to all clickable elements */
   button,
   a,
