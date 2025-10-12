@@ -41,6 +41,8 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
   const [priceData, setPriceData] = useState<StandardSize[]>([]);
   const [isLoadingPrices, setIsLoadingPrices] = useState(true);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  const [pulsingImageId, setPulsingImageId] = useState<string | null>(null);
+  const posterBoxRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   
   // Initialize from initialItems if provided
   const [images, setImages] = useState<ImageWithSize[]>(() => {
@@ -372,10 +374,13 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                 {images.map((img) => (
                   <div
                     key={img.id}
+                    ref={(el) => { posterBoxRefs.current[img.id] = el; }}
                     className={`relative group flex items-start space-x-4 p-4 rounded-xl border transition-all duration-150 cursor-pointer overflow-hidden ${
                       selectedImageId === img.id
                         ? 'bg-white/50 border-[#C4A57B]'
                         : 'bg-white/50 border-[#E5D5C0] hover:border-[#C4A57B]'
+                    } ${
+                      pulsingImageId === img.id ? 'animate-pulse-gentle' : ''
                     }`}
                     onClick={() => setSelectedImageId(img.id)}
                   >
@@ -560,6 +565,42 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                       }}
                       onMouseDown={(e) => handleImageDragStart(e, img.id)}
                       onTouchStart={(e) => handleImageDragStart(e, img.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const isMobile = windowWidth < 1024;
+                        if (!isMobile && posterBoxRefs.current[img.id]) {
+                          const element = posterBoxRefs.current[img.id];
+                          if (element) {
+                            const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+                            const offsetPosition = elementPosition - (window.innerHeight / 2) + (element.offsetHeight / 2);
+                            const startPosition = window.pageYOffset;
+                            const distance = offsetPosition - startPosition;
+                            const duration = 800; // 800ms for smooth scroll
+                            let start: number | null = null;
+                            
+                            const animation = (currentTime: number) => {
+                              if (start === null) start = currentTime;
+                              const timeElapsed = currentTime - start;
+                              const progress = Math.min(timeElapsed / duration, 1);
+                              
+                              // Easing function for smooth animation
+                              const ease = progress < 0.5
+                                ? 4 * progress * progress * progress
+                                : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+                              
+                              window.scrollTo(0, startPosition + distance * ease);
+                              
+                              if (timeElapsed < duration) {
+                                requestAnimationFrame(animation);
+                              }
+                            };
+                            
+                            requestAnimationFrame(animation);
+                          }
+                          setPulsingImageId(img.id);
+                          setTimeout(() => setPulsingImageId(null), 1200);
+                        }
+                      }}
                     >
                       <div
                         className="relative shadow-2xl"
