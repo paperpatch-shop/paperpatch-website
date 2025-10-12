@@ -67,6 +67,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
   const [error, setError] = useState('');
   const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
+  const [initialPosition, setInitialPosition] = useState<{ x: number; y: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const isDraggingRef = useRef(false);
   const dragImageIdRef = useRef<string | null>(null);
@@ -203,15 +204,20 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     
+    const currentImage = images.find(img => img.id === imageId);
+    if (currentImage) {
+      setInitialPosition({ x: currentImage.position.x, y: currentImage.position.y });
+    }
+    
     isDraggingRef.current = true;
     dragImageIdRef.current = imageId;
     setIsDragging(true);
     setDragStart({ x: clientX, y: clientY });
     setSelectedImageId(imageId);
-  }, []);
+  }, [images]);
 
   const handleImageDrag = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    if (!isDraggingRef.current || !dragStart || !dragImageIdRef.current) return;
+    if (!isDraggingRef.current || !dragStart || !initialPosition || !dragImageIdRef.current) return;
     e.preventDefault();
     
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
@@ -222,18 +228,17 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
     
     setImages(prev => prev.map(img => 
       img.id === dragImageIdRef.current
-        ? { ...img, position: { x: img.position.x + deltaX, y: img.position.y + deltaY } }
+        ? { ...img, position: { x: initialPosition.x + deltaX, y: initialPosition.y + deltaY } }
         : img
     ));
-    
-    setDragStart({ x: clientX, y: clientY });
-  }, [dragStart]);
+  }, [dragStart, initialPosition]);
 
   const handleImageDragEnd = useCallback(() => {
     isDraggingRef.current = false;
     dragImageIdRef.current = null;
     setIsDragging(false);
     setDragStart(null);
+    setInitialPosition(null);
   }, []);
 
   // Global mouse/touch move and end handlers for smoother dragging
@@ -406,8 +411,8 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
 
                     {/* Controls */}
                     <div className="flex-1 relative z-10">
-                      <p className="text-sm font-semibold text-foreground mb-2">Select Size:</p>
-                      <div className="grid grid-cols-2 gap-2 mb-3">
+                      <p className="text-xs sm:text-sm font-semibold text-foreground mb-1.5 sm:mb-2">Select Size:</p>
+                      <div className="grid grid-cols-2 gap-1.5 sm:gap-2 mb-2 sm:mb-3">
                         {POSTER_SIZES.map((size, idx) => (
                           <button
                             key={idx}
@@ -415,7 +420,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                               e.stopPropagation();
                               updateImageSize(img.id, idx);
                             }}
-                            className={`py-2 px-3 rounded-lg font-medium text-sm transition-all duration-150 ${
+                            className={`py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg font-medium text-xs sm:text-sm transition-all duration-150 ${
                               img.orderItem.width === size.width && img.orderItem.height === size.height
                                 ? 'bg-[#FFFEF9] text-[#6B5444] border-2 border-[#A67C52]'
                                 : 'bg-[#FEFEFE] border-2 border-[#E5E5E0] text-[#9CA3AF] hover:border-[#C4A57B] hover:bg-[#FFF9F0] hover:text-[#6B5444]'
@@ -427,28 +432,28 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                       </div>
 
                       {/* Board Selection */}
-                      <div className="mb-3">
-                        <p className="text-sm font-semibold text-foreground mb-2">Type:</p>
-                        <div className="grid grid-cols-2 gap-2">
+                      <div className="mb-2 sm:mb-3">
+                        <p className="text-xs sm:text-sm font-semibold text-foreground mb-1.5 sm:mb-2">Type:</p>
+                        <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               updateBoardOption(img.id, false);
                             }}
-                            className={`py-2 px-3 rounded-lg font-medium text-sm transition-all duration-150 flex items-center justify-center space-x-2 ${
+                            className={`py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg font-medium text-xs sm:text-sm transition-all duration-150 flex items-center justify-center space-x-1 sm:space-x-2 ${
                               !img.orderItem.withBoard
                                 ? 'bg-[#FFFEF9] text-[#6B5444] border-2 border-[#A67C52]'
                                 : 'bg-[#FEFEFE] border-2 border-[#E5E5E0] text-[#9CA3AF] hover:border-[#C4A57B] hover:bg-[#FFF9F0] hover:text-[#6B5444]'
                             }`}
                           >
-                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                            <div className={`w-2.5 h-2.5 sm:w-4 sm:h-4 rounded-full border-2 flex items-center justify-center ${
                               !img.orderItem.withBoard ? 'border-[#6B5444]' : 'border-[#C4A57B]'
                             }`}>
                               {!img.orderItem.withBoard && (
-                                <div className="w-2 h-2 rounded-full bg-[#6B5444]"></div>
+                                <div className="w-1 h-1 sm:w-2 sm:h-2 rounded-full bg-[#6B5444]"></div>
                               )}
                             </div>
-                            <span>Poster Sheet</span>
+                            <span className="whitespace-nowrap">Poster Sheet</span>
                           </button>
                           <button
                             onClick={(e) => {
@@ -457,7 +462,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                               updateBoardOption(img.id, true);
                             }}
                             disabled={img.orderItem.width === 35 && img.orderItem.height === 24}
-                            className={`py-2 px-3 rounded-lg font-medium text-sm transition-all duration-150 flex items-center justify-center space-x-2 ${
+                            className={`py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg font-medium text-xs sm:text-sm transition-all duration-150 flex items-center justify-center space-x-1 sm:space-x-2 ${
                               img.orderItem.width === 35 && img.orderItem.height === 24
                                 ? 'bg-gray-100 border-2 border-gray-300 text-gray-400 cursor-not-allowed'
                                 : img.orderItem.withBoard
@@ -465,14 +470,14 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                                 : 'bg-[#FEFEFE] border-2 border-[#E5E5E0] text-[#9CA3AF] hover:border-[#C4A57B] hover:bg-[#FFF9F0] hover:text-[#6B5444]'
                             }`}
                           >
-                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                            <div className={`w-2.5 h-2.5 sm:w-4 sm:h-4 rounded-full border-2 flex items-center justify-center ${
                               img.orderItem.withBoard ? 'border-[#6B5444]' : 'border-[#C4A57B]'
                             }`}>
                               {img.orderItem.withBoard && (
-                                <div className="w-2 h-2 rounded-full bg-[#6B5444]"></div>
+                                <div className="w-1 h-1 sm:w-2 sm:h-2 rounded-full bg-[#6B5444]"></div>
                               )}
                             </div>
-                            <span>Board Poster</span>
+                            <span className="whitespace-nowrap">Board Poster</span>
                           </button>
                         </div>
                         {img.orderItem.width === 35 && img.orderItem.height === 24 && (
