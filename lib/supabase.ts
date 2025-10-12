@@ -261,3 +261,94 @@ export async function updateOrderPrice(orderId: string, newPrice: number): Promi
     return false;
   }
 }
+
+// Gallery Management Functions
+export async function getGalleryImages() {
+  if (!supabase) {
+    console.warn('Supabase not configured');
+    return [];
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('gallery_images')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching gallery images:', error);
+    return [];
+  }
+}
+
+export async function uploadGalleryImage(file: File, category: 'previous_orders' | 'reviews') {
+  if (!supabase) {
+    throw new Error('Supabase not configured');
+  }
+
+  try {
+    // Upload to storage
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${category}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+    
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('gallery')
+      .upload(fileName, file);
+
+    if (uploadError) throw uploadError;
+
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('gallery')
+      .getPublicUrl(fileName);
+
+    // Save to database
+    const { error: dbError } = await supabase
+      .from('gallery_images')
+      .insert({
+        image_url: publicUrl,
+        category: category,
+      });
+
+    if (dbError) throw dbError;
+    return true;
+  } catch (error) {
+    console.error('Error uploading gallery image:', error);
+    throw error;
+  }
+}
+
+export async function deleteGalleryImage(id: string, imageUrl: string) {
+  if (!supabase) {
+    throw new Error('Supabase not configured');
+  }
+
+  try {
+    // Extract file path from URL
+    const urlParts = imageUrl.split('/');
+    const fileName = urlParts[urlParts.length - 1];
+    const category = urlParts[urlParts.length - 2];
+    const filePath = `${category}/${fileName}`;
+
+    // Delete from storage
+    const { error: storageError } = await supabase.storage
+      .from('gallery')
+      .remove([filePath]);
+
+    if (storageError) console.error('Storage delete error:', storageError);
+
+    // Delete from database
+    const { error: dbError } = await supabase
+      .from('gallery_images')
+      .delete()
+      .eq('id', id);
+
+    if (dbError) throw dbError;
+    return true;
+  } catch (error) {
+    console.error('Error deleting gallery image:', error);
+    throw error;
+  }
+}

@@ -139,4 +139,15 @@
   .animate-pulse-gentle {
     animation: pulse-gentle 0.6s ease-in-out 2;
   }
+
+  @keyframes subtle-pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 0.9;
+    }
+  }
 }

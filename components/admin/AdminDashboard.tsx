@@ -13,12 +13,14 @@ import {
   Filter,
   Search,
   FileText,
-  Settings
+  Settings,
+  Image as ImageIcon
 } from 'lucide-react';
 import { getOrders } from '@/lib/supabase';
 import { Order, AdminStats } from '@/lib/types';
 import OrderCard from './OrderCard';
 import PriceManager from './PriceManager';
+import GalleryManager from './GalleryManager';
 import Link from 'next/link';
 
 interface AdminDashboardProps {
@@ -39,6 +41,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [showPriceManager, setShowPriceManager] = useState(false);
+  const [showGalleryManager, setShowGalleryManager] = useState(false);
 
   useEffect(() => {
     loadOrders();
@@ -121,11 +124,18 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
             </div>
             <div className="flex items-center space-x-4">
               <button
+                onClick={() => setShowGalleryManager(true)}
+                className="flex items-center space-x-2 px-4 py-2 bg-[#8B6F47] hover:bg-[#6B5444] text-white rounded-lg transition-colors font-medium"
+              >
+                <ImageIcon className="w-5 h-5" />
+                <span className="hidden sm:inline">Gallery</span>
+              </button>
+              <button
                 onClick={() => setShowPriceManager(true)}
                 className="flex items-center space-x-2 px-4 py-2 bg-[#8B6F47] hover:bg-[#6B5444] text-white rounded-lg transition-colors font-medium"
               >
                 <Settings className="w-5 h-5" />
-                <span className="hidden sm:inline">Manage Prices</span>
+                <span className="hidden sm:inline">Prices</span>
               </button>
               <button
                 onClick={onLogout}
@@ -250,6 +260,11 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
       {/* Price Manager Modal */}
       {showPriceManager && (
         <PriceManager onClose={() => setShowPriceManager(false)} />
+      )}
+
+      {/* Gallery Manager Modal */}
+      {showGalleryManager && (
+        <GalleryManager onClose={() => setShowGalleryManager(false)} />
       )}
     </div>
   );

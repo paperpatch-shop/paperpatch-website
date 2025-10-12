@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Upload, X, Plus, Image as ImageIcon, ArrowLeft, ChevronLeft, ChevronRight, Move } from 'lucide-react';
+import { Upload, X, Plus, Image as ImageIcon, ArrowLeft, ChevronLeft, ChevronRight, Move, ArrowDown } from 'lucide-react';
 import { OrderItem, StandardSize } from '@/lib/types';
 import { getPrices } from '@/lib/supabase';
 import { calculatePosterPrice } from '@/lib/pricing';
@@ -28,13 +28,13 @@ const BACKGROUND_IMAGES = [
   '/background-3.png',
 ];
 
-// Poster size presets with scale ratios (0.5:0.75:1:1.5)
+// Poster size presets with scale ratios (0.5:0.75:1:1.3)
 const BASE_SIZE = 150;
 const POSTER_SIZES = [
   { width: 12, height: 8, label: '12" × 8"', scale: 0.5 },
   { width: 18, height: 12, label: '18" × 12"', scale: 0.75 },
   { width: 24, height: 16, label: '24" × 16"', scale: 1 },
-  { width: 35, height: 24, label: '35" × 24"', scale: 1.5 },
+  { width: 35, height: 24, label: '35" × 24"', scale: 1.3 },
 ];
 
 export default function MultiImageUpload({ onContinue, onBack, initialItems }: MultiImageUploadProps) {
@@ -71,6 +71,14 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
   const [isDragging, setIsDragging] = useState(false);
   const isDraggingRef = useRef(false);
   const dragImageIdRef = useRef<string | null>(null);
+  const [lastTapTime, setLastTapTime] = useState(0);
+  const [lastClickTime, setLastClickTime] = useState(0);
+  const [canScrollToCheckout, setCanScrollToCheckout] = useState(false);
+  const [showScrollDownButton, setShowScrollDownButton] = useState(false);
+  const [buttonShowTime, setButtonShowTime] = useState(0);
+  const checkoutButtonRef = useRef<HTMLDivElement | null>(null);
+  const previewWindowRef = useRef<HTMLDivElement | null>(null);
+  const yourPostersRef = useRef<HTMLDivElement | null>(null);
 
   // Load prices from Supabase
   useEffect(() => {
@@ -93,6 +101,40 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Detect when user scrolls to bottom on mobile to enable checkout
+  useEffect(() => {
+    const handleScroll = () => {
+      const isMobile = window.innerWidth < 640;
+      if (!isMobile) {
+        setCanScrollToCheckout(true);
+        return;
+      }
+
+      const scrollPosition = window.innerHeight + window.pageYOffset;
+      const bottomPosition = document.documentElement.scrollHeight;
+      
+      // Allow checkout if user is within 100px of bottom
+      if (scrollPosition >= bottomPosition - 100) {
+        setCanScrollToCheckout(true);
+      }
+      
+      // Hide scroll down button if user scrolls near preview window (only if button is visible)
+      // Wait at least 1 second after button appears before allowing auto-hide
+      if (showScrollDownButton && previewWindowRef.current && Date.now() - buttonShowTime > 1000) {
+        const previewRect = previewWindowRef.current.getBoundingClientRect();
+        // Check if preview window is in the middle/bottom half of viewport
+        const isPreviewVisible = previewRect.top < window.innerHeight * 0.7;
+        if (isPreviewVisible) {
+          setShowScrollDownButton(false);
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [showScrollDownButton]);
 
   // Helper function to get price for a size
   const getPriceForSize = (width: number, height: number, withBoard: boolean): number => {
@@ -144,6 +186,39 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
             const updated = [...prev, newImage];
             if (!selectedImageId) {
               setSelectedImageId(newImage.id);
+            }
+            // Scroll to "Your Posters" section on mobile
+            const isMobile = window.innerWidth < 640;
+            if (isMobile && updated.length > 0) {
+              setTimeout(() => {
+                if (yourPostersRef.current) {
+                  const elementPosition = yourPostersRef.current.getBoundingClientRect().top + window.pageYOffset;
+                  const offsetPosition = elementPosition - 80; // Small offset from top
+                  const startPosition = window.pageYOffset;
+                  const distance = offsetPosition - startPosition;
+                  const duration = 600; // Gentle 600ms scroll
+                  let start: number | null = null;
+                  
+                  const animation = (currentTime: number) => {
+                    if (start === null) start = currentTime;
+                    const timeElapsed = currentTime - start;
+                    const progress = Math.min(timeElapsed / duration, 1);
+                    
+                    // Easing function for smooth animation
+                    const ease = progress < 0.5
+                      ? 2 * progress * progress
+                      : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+                    
+                    window.scrollTo(0, startPosition + distance * ease);
+                    
+                    if (timeElapsed < duration) {
+                      requestAnimationFrame(animation);
+                    }
+                  };
+                  
+                  requestAnimationFrame(animation);
+                }
+              }, 150);
             }
             return updated;
           });
@@ -198,7 +273,12 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
   };
 
   const handleImageDragStart = useCallback((e: React.MouseEvent | React.TouchEvent, imageId: string) => {
-    e.preventDefault();
+    // Only preventDefault for mouse events, not touch events on the initial handler
+    if ('touches' in e) {
+      // For touch, we'll handle preventDefault in the global listener
+    } else {
+      e.preventDefault();
+    }
     e.stopPropagation();
     
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
@@ -218,7 +298,11 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
 
   const handleImageDrag = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     if (!isDraggingRef.current || !dragStart || !initialPosition || !dragImageIdRef.current) return;
-    e.preventDefault();
+    
+    // Only preventDefault for mouse events
+    if (!('touches' in e)) {
+      e.preventDefault();
+    }
     
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
@@ -307,6 +391,17 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
       setError('Please upload at least one image');
       return;
     }
+    
+    // On mobile, check if user has scrolled to bottom
+    const isMobile = window.innerWidth < 640;
+    if (isMobile && !canScrollToCheckout) {
+      // Scroll to checkout button to show user where it is
+      if (checkoutButtonRef.current) {
+        checkoutButtonRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }
+      return;
+    }
+    
     onContinue(images.map(img => img.orderItem));
   };
 
@@ -372,7 +467,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
 
         {/* Poster Boxes */}
         {images.length > 0 && (
-          <div className="relative bg-card/80 backdrop-blur-sm rounded-2xl shadow-lg border border-[#E5D5C0] transition-all duration-150 overflow-hidden">
+          <div ref={yourPostersRef} className="relative bg-card/80 backdrop-blur-sm rounded-2xl shadow-lg border border-[#E5D5C0] transition-all duration-150 overflow-hidden">
             <div className="relative p-6">
               <h3 className="text-xl font-bold text-foreground mb-4">Your Posters</h3>
               <div className="space-y-4">
@@ -411,7 +506,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
 
                     {/* Controls */}
                     <div className="flex-1 relative z-10">
-                      <p className="text-xs sm:text-sm font-semibold text-foreground mb-1.5 sm:mb-2">Select Size:</p>
+                      <p className="text-xs sm:text-sm font-semibold text-foreground mb-1.5 sm:mb-2">Select Size (inches):</p>
                       <div className="grid grid-cols-2 gap-1.5 sm:gap-2 mb-2 sm:mb-3">
                         {POSTER_SIZES.map((size, idx) => (
                           <button
@@ -420,7 +515,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                               e.stopPropagation();
                               updateImageSize(img.id, idx);
                             }}
-                            className={`py-1.5 sm:py-2 px-2 sm:px-3 rounded-lg font-medium text-xs sm:text-sm transition-all duration-150 ${
+                            className={`py-1.5 sm:py-2 px-1.5 sm:px-3 rounded-lg font-medium text-[10px] sm:text-sm transition-all duration-150 whitespace-nowrap ${
                               img.orderItem.width === size.width && img.orderItem.height === size.height
                                 ? 'bg-[#FFFEF9] text-[#6B5444] border-2 border-[#A67C52]'
                                 : 'bg-[#FEFEFE] border-2 border-[#E5E5E0] text-[#9CA3AF] hover:border-[#C4A57B] hover:bg-[#FFF9F0] hover:text-[#6B5444]'
@@ -453,7 +548,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                                 <div className="w-1 h-1 sm:w-2 sm:h-2 rounded-full bg-[#6B5444]"></div>
                               )}
                             </div>
-                            <span className="whitespace-nowrap">Poster Sheet</span>
+                            <span className="whitespace-nowrap">Sheet</span>
                           </button>
                           <button
                             onClick={(e) => {
@@ -477,7 +572,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                                 <div className="w-1 h-1 sm:w-2 sm:h-2 rounded-full bg-[#6B5444]"></div>
                               )}
                             </div>
-                            <span className="whitespace-nowrap">Board Poster</span>
+                            <span className="whitespace-nowrap">Board</span>
                           </button>
                         </div>
                         {img.orderItem.width === 35 && img.orderItem.height === 24 && (
@@ -512,7 +607,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
 
       {/* Right Column - Sticky Preview Window */}
       {images.length > 0 && (
-        <div className="lg:sticky lg:top-8 lg:bottom-24 h-fit lg:self-start">
+        <div ref={previewWindowRef} className="lg:sticky lg:top-8 lg:bottom-24 h-fit lg:self-start">
           <div className="relative bg-card/80 backdrop-blur-sm rounded-2xl shadow-lg border border-[#E5D5C0] transition-all duration-150 overflow-hidden">
             <div className="relative p-3 sm:p-6">
               <h3 className="text-lg sm:text-xl font-bold text-foreground mb-3 sm:mb-4">Preview</h3>
@@ -572,8 +667,17 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                       onTouchStart={(e) => handleImageDragStart(e, img.id)}
                       onClick={(e) => {
                         e.stopPropagation();
-                        const isMobile = windowWidth < 1024;
-                        if (!isMobile && posterBoxRefs.current[img.id]) {
+                        const isMobile = windowWidth < 640;
+                        const isDesktop = windowWidth >= 1024;
+                        const now = Date.now();
+                        const isDoubleTap = now - lastTapTime < 300;
+                        const isDoubleClick = now - lastClickTime < 300;
+                        setLastTapTime(now);
+                        setLastClickTime(now);
+                        
+                        // Double tap on mobile, double click on desktop
+                        if ((isMobile && isDoubleTap) || (isDesktop && isDoubleClick)) {
+                          if (posterBoxRefs.current[img.id]) {
                           const element = posterBoxRefs.current[img.id];
                           if (element) {
                             const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
@@ -604,6 +708,13 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                           }
                           setPulsingImageId(img.id);
                           setTimeout(() => setPulsingImageId(null), 1200);
+                          
+                          // Show scroll down button on mobile after scrolling up
+                          if (isMobile) {
+                            setShowScrollDownButton(true);
+                            setButtonShowTime(Date.now());
+                          }
+                        }
                         }
                       }}
                     >
@@ -626,10 +737,10 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                 })}
 
                 {/* Drag hint */}
-                <div className="absolute bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium flex items-center space-x-1 z-30 text-[#6B5444] border border-[#E5D5C0]">
+                <div className="absolute bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-xs font-medium flex items-center space-x-1 z-30 text-[#6B5444] border border-[#E5D5C0] whitespace-nowrap">
                   <Move className="w-3 h-3" />
-                  <span className="hidden sm:inline">Drag to reposition • Click to select</span>
-                  <span className="sm:hidden">Drag to move</span>
+                  <span className="hidden sm:inline">Drag to reposition • Double click to jump</span>
+                  <span className="sm:hidden">Drag • Double tap to jump</span>
                 </div>
               </div>
             </div>
@@ -637,8 +748,53 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
         </div>
       )}
 
+      {/* Scroll Down Button - Mobile Only */}
+      {showScrollDownButton && (
+        <div className="sm:hidden">
+          <button
+            onClick={() => {
+              if (previewWindowRef.current) {
+                const elementPosition = previewWindowRef.current.getBoundingClientRect().top + window.pageYOffset;
+                const offsetPosition = elementPosition - (window.innerHeight / 2) + (previewWindowRef.current.offsetHeight / 2);
+                const startPosition = window.pageYOffset;
+                const distance = offsetPosition - startPosition;
+                const duration = 600; // Gentle 600ms scroll
+                let start: number | null = null;
+                
+                const animation = (currentTime: number) => {
+                  if (start === null) start = currentTime;
+                  const timeElapsed = currentTime - start;
+                  const progress = Math.min(timeElapsed / duration, 1);
+                  
+                  // Easing function for smooth animation
+                  const ease = progress < 0.5
+                    ? 2 * progress * progress
+                    : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+                  
+                  window.scrollTo(0, startPosition + distance * ease);
+                  
+                  if (timeElapsed < duration) {
+                    requestAnimationFrame(animation);
+                  }
+                };
+                
+                requestAnimationFrame(animation);
+                setShowScrollDownButton(false);
+              }
+            }}
+            className="fixed bottom-28 right-4 z-[60] w-12 h-12 bg-[#8B6F47] hover:bg-[#6B5444] text-white rounded-full shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110"
+            style={{
+              animation: 'subtle-pulse 2s ease-in-out infinite'
+            }}
+            aria-label="Scroll to preview"
+          >
+            <ArrowDown className="w-5 h-5" />
+          </button>
+        </div>
+      )}
+
       {/* Action Buttons - Fixed at Bottom on Mobile, Normal on Desktop */}
-      <div className="fixed bottom-0 left-0 right-0 lg:relative lg:col-span-2 flex space-x-3 p-4 lg:p-0 bg-[#FFF9F0] lg:bg-transparent border-t lg:border-t-0 border-[#E5D5C0] z-50">
+      <div ref={checkoutButtonRef} className="fixed bottom-0 left-0 right-0 lg:relative lg:col-span-2 flex space-x-3 p-4 lg:p-0 bg-[#FFF9F0] lg:bg-transparent border-t lg:border-t-0 border-[#E5D5C0] z-50">
         <button
           onClick={onBack}
           className="px-4 lg:px-6 py-3 bg-white/80 backdrop-blur-sm border border-[#E5D5C0] hover:border-[#C4A57B] rounded-xl font-semibold text-[#6B5444] transition-all duration-150 flex items-center space-x-2"
