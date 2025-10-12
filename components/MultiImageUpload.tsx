@@ -670,8 +670,8 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                         const isMobile = windowWidth < 640;
                         const isDesktop = windowWidth >= 1024;
                         const now = Date.now();
-                        const isDoubleTap = now - lastTapTime < 300;
-                        const isDoubleClick = now - lastClickTime < 300;
+                        const isDoubleTap = now - lastTapTime < 500;
+                        const isDoubleClick = now - lastClickTime < 400;
                         setLastTapTime(now);
                         setLastClickTime(now);
                         
@@ -684,7 +684,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                             const offsetPosition = elementPosition - (window.innerHeight / 2) + (element.offsetHeight / 2);
                             const startPosition = window.pageYOffset;
                             const distance = offsetPosition - startPosition;
-                            const duration = 800; // 800ms for smooth scroll
+                            const duration = 400; // 400ms for faster scroll
                             let start: number | null = null;
                             
                             const animation = (currentTime: number) => {
@@ -758,7 +758,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                 const offsetPosition = elementPosition - (window.innerHeight / 2) + (previewWindowRef.current.offsetHeight / 2);
                 const startPosition = window.pageYOffset;
                 const distance = offsetPosition - startPosition;
-                const duration = 600; // Gentle 600ms scroll
+                const duration = 400; // 400ms for faster scroll
                 let start: number | null = null;
                 
                 const animation = (currentTime: number) => {
