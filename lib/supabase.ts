@@ -352,3 +352,23 @@ export async function deleteGalleryImage(id: string, imageUrl: string) {
     throw error;
   }
 }
+
+// Delete order
+export async function deleteOrder(orderId: string): Promise<boolean> {
+  if (!supabase) {
+    throw new Error('Supabase not configured');
+  }
+
+  try {
+    const { error } = await supabase
+      .from('orders')
+      .delete()
+      .eq('id', orderId);
+
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error('Error deleting order:', error);
+    throw error;
+  }
+}

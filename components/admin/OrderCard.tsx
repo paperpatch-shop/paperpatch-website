@@ -15,10 +15,11 @@ import {
   X,
   Edit2,
   Image as ImageIcon,
-  Download
+  Download,
+  Trash2
 } from 'lucide-react';
 import { Order } from '@/lib/types';
-import { updateOrderStatus, updateOrderPrice } from '@/lib/supabase';
+import { updateOrderStatus, updateOrderPrice, deleteOrder } from '@/lib/supabase';
 
 interface OrderCardProps {
   order: Order;
@@ -72,6 +73,25 @@ export default function OrderCard({ order, onUpdate }: OrderCardProps) {
       onUpdate();
     } else {
       alert('Failed to update price');
+    }
+    setIsUpdating(false);
+  };
+
+  const handleDelete = async () => {
+    if (!confirm(`Are you sure you want to delete order #${order.id.slice(0, 8)}? This action cannot be undone.`)) {
+      return;
+    }
+
+    setIsUpdating(true);
+    try {
+      const success = await deleteOrder(order.id);
+      if (success) {
+        onUpdate();
+      } else {
+        alert('Failed to delete order');
+      }
+    } catch (error) {
+      alert('Failed to delete order');
     }
     setIsUpdating(false);
   };
@@ -208,6 +228,17 @@ export default function OrderCard({ order, onUpdate }: OrderCardProps) {
                 </button>
               </div>
             )}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete();
+              }}
+              disabled={isUpdating}
+              className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
+              title="Delete Order"
+            >
+              <Trash2 className="w-5 h-5" />
+            </button>
             {isExpanded ? (
               <ChevronUp className="w-5 h-5 text-paper-600" />
             ) : (

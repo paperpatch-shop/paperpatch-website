@@ -139,6 +139,7 @@ interface GalleryManagerProps {
 
 export default function GalleryManager({ onClose }: GalleryManagerProps) {
   const [images, setImages] = useState<GalleryImage[]>([]);
+  const [hiddenStaticImages, setHiddenStaticImages] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<'previous_orders' | 'reviews'>('previous_orders');
@@ -152,8 +153,10 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
     try {
       setIsLoading(true);
       const dbImages = await getGalleryImages();
-      // Merge static images with database images
-      const allImages = [...staticPreviousOrders, ...staticReviews, ...dbImages];
+      // Merge static images with database images, filter out hidden ones
+      const visibleStaticPrevious = staticPreviousOrders.filter(img => !hiddenStaticImages.has(img.id));
+      const visibleStaticReviews = staticReviews.filter(img => !hiddenStaticImages.has(img.id));
+      const allImages = [...visibleStaticPrevious, ...visibleStaticReviews, ...dbImages];
       setImages(allImages);
     } catch (err) {
       setError('Failed to load gallery images');
@@ -193,17 +196,22 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
   };
 
   const handleDelete = async (id: string, imageUrl: string, isStatic?: boolean) => {
-    if (isStatic) {
-      setError('Cannot delete existing gallery images. These are stored in the public folder.');
-      setTimeout(() => setError(''), 3000);
-      return;
-    }
-
     if (!confirm('Are you sure you want to delete this image?')) return;
 
     try {
-      await deleteGalleryImage(id, imageUrl);
-      await loadImages();
+      if (isStatic) {
+        // Hide static image from gallery
+        setHiddenStaticImages(prev => {
+          const newSet = new Set(prev);
+          newSet.add(id);
+          return newSet;
+        });
+        await loadImages();
+      } else {
+        // Delete database image
+        await deleteGalleryImage(id, imageUrl);
+        await loadImages();
+      }
     } catch (err) {
       setError('Failed to delete image');
       console.error(err);
@@ -238,8 +246,8 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
           <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start space-x-2">
             <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-blue-800">
-              <p className="font-semibold mb-1">Existing Gallery Images</p>
-              <p>Images marked with "Existing" badge are stored in the public folder and cannot be deleted from here. You can only delete newly uploaded images from the database.</p>
+              <p className="font-semibold mb-1">Gallery Management</p>
+              <p>Images marked with "Existing" badge are from the public folder. Deleting them will hide them from the gallery (files remain in public folder). New uploads are stored in Supabase and fully deleted.</p>
             </div>
           </div>
 
@@ -354,7 +362,7 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
                       )}
                       <button
                         onClick={() => handleDelete(img.id, img.image_url, img.isStatic)}
-                        className={`absolute top-2 right-2 p-2 ${img.isStatic ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'} text-white rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-lg`}
+                        className="absolute top-2 right-2 p-2 bg-red-600 hover:bg-red-700 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-lg"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -400,7 +408,7 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
                       )}
                       <button
                         onClick={() => handleDelete(img.id, img.image_url, img.isStatic)}
-                        className={`absolute top-2 right-2 p-2 ${img.isStatic ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'} text-white rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-lg`}
+                        className="absolute top-2 right-2 p-2 bg-red-600 hover:bg-red-700 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-lg"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
