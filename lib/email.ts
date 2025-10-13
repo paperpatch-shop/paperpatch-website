@@ -93,14 +93,12 @@ function generateCustomerEmailHTML(data: OrderEmailData): string {
             padding: 40px 30px;
             text-align: center;
           }
-          .logo {
-            max-width: 160px;
-            height: auto;
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            margin: 0 auto;
-            display: block;
+          .logo-text {
+            font-size: 32px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 1px;
+            text-transform: uppercase;
           }
           .header-title {
             color: white;
@@ -230,7 +228,7 @@ function generateCustomerEmailHTML(data: OrderEmailData): string {
       <body>
         <div class="email-wrapper">
           <div class="header">
-            <img src="https://paperpatch.shop/logo.png" alt="Paperpatch" class="logo" />
+            <div class="logo-text">Paperpatch</div>
             <div class="header-title">Order Confirmation</div>
           </div>
 
