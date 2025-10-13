@@ -252,12 +252,10 @@ function generateCustomerEmailHTML(data: OrderEmailData): string {
                   <span class="item-price">৳${item.price}</span>
                 </div>
                 <div class="item-detail">
-                  <span>Size -</span>
-                  <span>${item.width}" × ${item.height}"</span>
+                  <span>Size - ${item.width}" × ${item.height}"</span>
                 </div>
                 <div class="item-detail">
-                  <span>Board -</span>
-                  <span>${item.withBoard ? 'Yes' : 'No'}</span>
+                  <span>Board - ${item.withBoard ? 'Yes' : 'No'}</span>
                 </div>
               </div>
             `).join('')}
@@ -454,12 +452,10 @@ function generateAdminEmailHTML(data: OrderEmailData): string {
                     <span>৳${item.price}</span>
                   </div>
                   <div class="item-detail">
-                    <span>Size -</span>
-                    <span>${item.width}" × ${item.height}"</span>
+                    <span>Size - ${item.width}" × ${item.height}"</span>
                   </div>
                   <div class="item-detail">
-                    <span>Board -</span>
-                    <span>${item.withBoard ? 'Yes' : 'No'}</span>
+                    <span>Board - ${item.withBoard ? 'Yes' : 'No'}</span>
                   </div>
                 </div>
               `).join('')}
