@@ -27,13 +27,15 @@ export default function GalleryPage() {
     }
   };
 
-  // Filter images by category
+  // Filter images by category and sort by order_index
   const previousOrders = dbImages
     .filter(img => img.category === 'previous_orders')
+    .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
     .map(img => img.image_url);
   
   const reviews = dbImages
     .filter(img => img.category === 'reviews')
+    .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
     .map(img => ({ image: img.image_url }));
 
   return (
