@@ -29,7 +29,7 @@ const BACKGROUND_IMAGES = [
 ];
 
 // Poster size presets with scale ratios (0.5:0.75:1:1.3)
-const BASE_SIZE = 150;
+const BASE_SIZE = 120; // Reduced from 150 to 120 (20% smaller)
 const POSTER_SIZES = [
   { width: 12, height: 8, label: '12" × 8"', scale: 0.5 },
   { width: 18, height: 12, label: '18" × 12"', scale: 0.75 },
@@ -71,8 +71,10 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
   const [isDragging, setIsDragging] = useState(false);
   const isDraggingRef = useRef(false);
   const dragImageIdRef = useRef<string | null>(null);
-  const [lastTapTime, setLastTapTime] = useState(0);
-  const [lastClickTime, setLastClickTime] = useState(0);
+  const lastTapTimeRef = useRef(0);
+  const tappedImageIdRef = useRef<string | null>(null);
+  const touchStartPosRef = useRef<{ x: number; y: number } | null>(null);
+  const hasDraggedRef = useRef(false);
   const [canScrollToCheckout, setCanScrollToCheckout] = useState(false);
   const [showScrollDownButton, setShowScrollDownButton] = useState(false);
   const [buttonShowTime, setButtonShowTime] = useState(0);
@@ -276,6 +278,10 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
     // Only preventDefault for mouse events, not touch events on the initial handler
     if ('touches' in e) {
       // For touch, we'll handle preventDefault in the global listener
+      const clientX = e.touches[0].clientX;
+      const clientY = e.touches[0].clientY;
+      touchStartPosRef.current = { x: clientX, y: clientY };
+      hasDraggedRef.current = false;
     } else {
       e.preventDefault();
     }
@@ -309,6 +315,17 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
     
     const deltaX = clientX - dragStart.x;
     const deltaY = clientY - dragStart.y;
+    
+    // Check if user has moved enough to be considered a drag (10px threshold)
+    if ('touches' in e && touchStartPosRef.current) {
+      const distance = Math.sqrt(
+        Math.pow(clientX - touchStartPosRef.current.x, 2) + 
+        Math.pow(clientY - touchStartPosRef.current.y, 2)
+      );
+      if (distance > 10) {
+        hasDraggedRef.current = true;
+      }
+    }
     
     setImages(prev => prev.map(img => 
       img.id === dragImageIdRef.current
@@ -665,56 +682,108 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                       }}
                       onMouseDown={(e) => handleImageDragStart(e, img.id)}
                       onTouchStart={(e) => handleImageDragStart(e, img.id)}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const isMobile = windowWidth < 640;
-                        const isDesktop = windowWidth >= 1024;
-                        const now = Date.now();
-                        const isDoubleTap = now - lastTapTime < 500;
-                        const isDoubleClick = now - lastClickTime < 400;
-                        setLastTapTime(now);
-                        setLastClickTime(now);
+                      onTouchEnd={(e) => {
+                        // Only handle if not dragging (check if user actually moved)
+                        if (hasDraggedRef.current) {
+                          hasDraggedRef.current = false;
+                          return;
+                        }
                         
-                        // Double tap on mobile, double click on desktop
-                        if ((isMobile && isDoubleTap) || (isDesktop && isDoubleClick)) {
+                        e.stopPropagation();
+                        const now = Date.now();
+                        const timeSinceLastTap = now - lastTapTimeRef.current;
+                        const isSameImage = tappedImageIdRef.current === img.id;
+                        const isDoubleTap = timeSinceLastTap < 500 && isSameImage;
+                        
+                        if (isDoubleTap) {
+                          // Double tap detected - scroll to poster box
                           if (posterBoxRefs.current[img.id]) {
-                          const element = posterBoxRefs.current[img.id];
-                          if (element) {
-                            const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
-                            const offsetPosition = elementPosition - (window.innerHeight / 2) + (element.offsetHeight / 2);
-                            const startPosition = window.pageYOffset;
-                            const distance = offsetPosition - startPosition;
-                            const duration = 400; // 400ms for faster scroll
-                            let start: number | null = null;
+                            const element = posterBoxRefs.current[img.id];
+                            if (element) {
+                              const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+                              const offsetPosition = elementPosition - (window.innerHeight / 2) + (element.offsetHeight / 2);
+                              const startPosition = window.pageYOffset;
+                              const distance = offsetPosition - startPosition;
+                              const duration = 400;
+                              let start: number | null = null;
+                              
+                              const animation = (currentTime: number) => {
+                                if (start === null) start = currentTime;
+                                const timeElapsed = currentTime - start;
+                                const progress = Math.min(timeElapsed / duration, 1);
+                                
+                                const ease = progress < 0.5
+                                  ? 4 * progress * progress * progress
+                                  : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+                                
+                                window.scrollTo(0, startPosition + distance * ease);
+                                
+                                if (timeElapsed < duration) {
+                                  requestAnimationFrame(animation);
+                                }
+                              };
+                              
+                              requestAnimationFrame(animation);
+                            }
+                            setPulsingImageId(img.id);
+                            setTimeout(() => setPulsingImageId(null), 1200);
                             
-                            const animation = (currentTime: number) => {
-                              if (start === null) start = currentTime;
-                              const timeElapsed = currentTime - start;
-                              const progress = Math.min(timeElapsed / duration, 1);
-                              
-                              // Easing function for smooth animation
-                              const ease = progress < 0.5
-                                ? 4 * progress * progress * progress
-                                : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-                              
-                              window.scrollTo(0, startPosition + distance * ease);
-                              
-                              if (timeElapsed < duration) {
-                                requestAnimationFrame(animation);
-                              }
-                            };
-                            
-                            requestAnimationFrame(animation);
-                          }
-                          setPulsingImageId(img.id);
-                          setTimeout(() => setPulsingImageId(null), 1200);
-                          
-                          // Show scroll down button on mobile after scrolling up
-                          if (isMobile) {
+                            // Show scroll down button after scrolling up
                             setShowScrollDownButton(true);
                             setButtonShowTime(Date.now());
                           }
+                          
+                          // Reset for next double tap
+                          lastTapTimeRef.current = 0;
+                          tappedImageIdRef.current = null;
+                        } else {
+                          // Single tap - record time and image
+                          lastTapTimeRef.current = now;
+                          tappedImageIdRef.current = img.id;
                         }
+                      }}
+                      onClick={(e) => {
+                        // Desktop double-click handling
+                        e.stopPropagation();
+                        if (windowWidth >= 1024) {
+                          // Let browser handle double-click on desktop
+                        }
+                      }}
+                      onDoubleClick={(e) => {
+                        // Desktop double-click
+                        if (windowWidth >= 1024) {
+                          e.stopPropagation();
+                          if (posterBoxRefs.current[img.id]) {
+                            const element = posterBoxRefs.current[img.id];
+                            if (element) {
+                              const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+                              const offsetPosition = elementPosition - (window.innerHeight / 2) + (element.offsetHeight / 2);
+                              const startPosition = window.pageYOffset;
+                              const distance = offsetPosition - startPosition;
+                              const duration = 400;
+                              let start: number | null = null;
+                              
+                              const animation = (currentTime: number) => {
+                                if (start === null) start = currentTime;
+                                const timeElapsed = currentTime - start;
+                                const progress = Math.min(timeElapsed / duration, 1);
+                                
+                                const ease = progress < 0.5
+                                  ? 4 * progress * progress * progress
+                                  : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+                                
+                                window.scrollTo(0, startPosition + distance * ease);
+                                
+                                if (timeElapsed < duration) {
+                                  requestAnimationFrame(animation);
+                                }
+                              };
+                              
+                              requestAnimationFrame(animation);
+                            }
+                            setPulsingImageId(img.id);
+                            setTimeout(() => setPulsingImageId(null), 1200);
+                          }
                         }
                       }}
                     >
@@ -737,8 +806,8 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                 })}
 
                 {/* Drag hint */}
-                <div className="absolute bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-xs font-medium flex items-center space-x-1 z-30 text-[#6B5444] border border-[#E5D5C0] whitespace-nowrap">
-                  <Move className="w-3 h-3" />
+                <div className="absolute bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 bg-[#8B6F47]/80 backdrop-blur-sm text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-sm font-bold flex items-center space-x-1.5 sm:space-x-2 z-30 shadow-lg border-2 border-white/30 whitespace-nowrap">
+                  <Move className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span className="hidden sm:inline">Drag to reposition • Double click to jump</span>
                   <span className="sm:hidden">Drag • Double tap to jump</span>
                 </div>

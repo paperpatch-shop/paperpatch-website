@@ -60,6 +60,36 @@ export default function CreatePage() {
     };
 
     await saveOrder(order);
+
+    // Send order confirmation emails
+    try {
+      await fetch('/api/send-order-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: orderNumber,
+          customerName: shipping.name,
+          customerEmail: shipping.email,
+          customerPhone: shipping.phone,
+          customerAddress: `${shipping.address}, ${shipping.city}`,
+          items: finalItems.map(item => ({
+            imageUrl: item.imageUrl,
+            width: item.width,
+            height: item.height,
+            withBoard: item.withBoard,
+            price: item.price,
+          })),
+          subtotal: postersTotal,
+          shippingCost,
+          total: totalAmount,
+          paymentMethod: paymentMethod === 'cod' ? 'Cash on Delivery' : `bKash (TxID: ${bkashTransactionId})`,
+        }),
+      });
+    } catch (error) {
+      console.error('Failed to send order emails:', error);
+      // Don't block order completion if email fails
+    }
+
     setCompletedOrder(order);
     setStep(3);
   };
