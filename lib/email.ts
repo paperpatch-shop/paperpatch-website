@@ -31,27 +31,21 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData) {
   }
 
   try {
-    // Send confirmation to customer (using Resend's default domain)
-    // Note: Without a verified domain, this only works if customer email = admin email
+    // Send confirmation to customer (using verified domain)
     console.log('Sending customer email to:', data.customerEmail);
-    try {
-      const customerResult = await resend.emails.send({
-        from: 'Paperpatch <onboarding@resend.dev>',
-        to: data.customerEmail,
-        replyTo: adminEmail,
-        subject: `Order Confirmation #${data.orderId}`,
-        html: generateCustomerEmailHTML(data),
-      });
-      console.log('Customer email sent successfully:', customerResult);
-    } catch (customerError: any) {
-      console.warn('Could not send customer email (domain not verified):', customerError.message);
-      // Don't fail the whole process if customer email fails
-    }
+    const customerResult = await resend.emails.send({
+      from: 'Paperpatch <orders@send.paperpatch.shop>',
+      to: data.customerEmail,
+      replyTo: adminEmail,
+      subject: `Order Confirmation #${data.orderId}`,
+      html: generateCustomerEmailHTML(data),
+    });
+    console.log('Customer email sent successfully:', customerResult);
 
-    // Send notification to admin (this always works)
+    // Send notification to admin
     console.log('Sending admin email to:', adminEmail);
     const adminResult = await resend.emails.send({
-      from: 'Paperpatch Orders <onboarding@resend.dev>',
+      from: 'Paperpatch Orders <orders@send.paperpatch.shop>',
       to: adminEmail,
       replyTo: adminEmail,
       subject: `New Order #${data.orderId} - ${data.customerName}`,
