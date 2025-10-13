@@ -264,21 +264,28 @@ export async function updateOrderPrice(orderId: string, newPrice: number): Promi
 
 // Gallery Management Functions
 export async function getGalleryImages() {
+  console.log('[getGalleryImages] Starting...');
+  console.log('[getGalleryImages] Supabase client exists:', !!supabase);
+  
   if (!supabase) {
-    console.warn('Supabase not configured');
+    console.warn('[getGalleryImages] Supabase not configured');
     return [];
   }
 
   try {
+    console.log('[getGalleryImages] Fetching from gallery_images table...');
     const { data, error } = await supabase
       .from('gallery_images')
       .select('*')
       .order('order_index', { ascending: true });
 
+    console.log('[getGalleryImages] Response - data:', data, 'error:', error);
+    
     if (error) throw error;
+    console.log('[getGalleryImages] Returning', data?.length || 0, 'images');
     return data || [];
   } catch (error) {
-    console.error('Error fetching gallery images:', error);
+    console.error('[getGalleryImages] Error fetching gallery images:', error);
     return [];
   }
 }

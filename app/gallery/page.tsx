@@ -19,6 +19,8 @@ export default function GalleryPage() {
   const loadImages = async () => {
     try {
       const images = await getGalleryImages();
+      console.log('Raw gallery images response:', images);
+      console.log('Gallery images count:', images.length);
       console.log('Loaded gallery images:', images.map(img => ({ 
         id: img.id, 
         category: img.category, 
