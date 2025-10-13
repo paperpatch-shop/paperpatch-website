@@ -35,11 +35,6 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
     try {
       setIsLoading(true);
       const dbImages = await getGalleryImages();
-      console.log('Loaded images from DB:', dbImages.slice(0, 5).map(img => ({ 
-        id: img.id.substring(0, 8), 
-        category: img.category, 
-        order: img.order_index 
-      })));
       setImages(dbImages);
     } catch (err) {
       setError('Failed to load gallery images');
@@ -139,22 +134,16 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
 
       // Optimistically update UI immediately
       const otherCategoryImages = images.filter(img => img.category !== targetImage.category);
-      const newImages = [...otherCategoryImages, ...reorderedWithNewIndex].sort((a, b) => {
-        if (a.category !== b.category) return a.category.localeCompare(b.category);
-        return (a.order_index || 0) - (b.order_index || 0);
-      });
+      const newImages = [...otherCategoryImages, ...reorderedWithNewIndex];
       setImages(newImages);
 
       // Update order_index for all affected images in database
-      console.log('Updating database with new order:', reorderedWithNewIndex.map(img => ({ id: img.id, order: img.order_index })));
-      
       const updates = reorderedWithNewIndex.map((img) => 
         updateGalleryImageOrder(img.id, img.order_index)
       );
 
       try {
         await Promise.all(updates);
-        console.log('Database updated successfully');
       } catch (err) {
         console.error('Failed to update order in database:', err);
         setError('Failed to save new order');

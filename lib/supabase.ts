@@ -273,6 +273,7 @@ export async function getGalleryImages() {
     const { data, error } = await supabase
       .from('gallery_images')
       .select('*')
+      .order('category', { ascending: true })
       .order('order_index', { ascending: true });
     
     if (error) throw error;
