@@ -63,7 +63,7 @@ export default function CreatePage() {
 
     // Send order confirmation emails
     try {
-      await fetch('/api/send-order-email', {
+      const emailResponse = await fetch('/api/send-order-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -85,6 +85,13 @@ export default function CreatePage() {
           paymentMethod: paymentMethod === 'cod' ? 'Cash on Delivery' : `bKash (TxID: ${bkashTransactionId})`,
         }),
       });
+      
+      if (!emailResponse.ok) {
+        const errorData = await emailResponse.json();
+        console.error('Email API error:', errorData);
+      } else {
+        console.log('Emails sent successfully');
+      }
     } catch (error) {
       console.error('Failed to send order emails:', error);
       // Don't block order completion if email fails
