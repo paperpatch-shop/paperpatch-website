@@ -34,7 +34,7 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData) {
     // Send confirmation to customer (using verified domain)
     console.log('Sending customer email to:', data.customerEmail);
     const customerResult = await resend.emails.send({
-      from: 'Paperpatch <orders@send.paperpatch.shop>',
+      from: 'Paperpatch <orders@paperpatch.shop>',
       to: data.customerEmail,
       replyTo: adminEmail,
       subject: `Order Confirmation #${data.orderId}`,
@@ -45,7 +45,7 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData) {
     // Send notification to admin
     console.log('Sending admin email to:', adminEmail);
     const adminResult = await resend.emails.send({
-      from: 'Paperpatch Orders <orders@send.paperpatch.shop>',
+      from: 'Paperpatch Orders <orders@paperpatch.shop>',
       to: adminEmail,
       replyTo: adminEmail,
       subject: `New Order #${data.orderId} - ${data.customerName}`,
