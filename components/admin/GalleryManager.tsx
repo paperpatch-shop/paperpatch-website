@@ -86,6 +86,7 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
   };
 
   const handleDragStart = (e: React.DragEvent, image: GalleryImage) => {
+    console.log('Drag started:', image.id);
     setDraggedItem(image);
     e.dataTransfer.effectAllowed = 'move';
   };
@@ -93,6 +94,11 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDragEnd = () => {
+    console.log('Drag ended');
+    setDraggedItem(null);
   };
 
   const handleDrop = async (e: React.DragEvent, targetImage: GalleryImage) => {
@@ -283,6 +289,7 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
                       onDragStart={(e) => handleDragStart(e, img)}
                       onDragOver={handleDragOver}
                       onDrop={(e) => handleDrop(e, img)}
+                      onDragEnd={handleDragEnd}
                       className={`relative group aspect-square rounded-lg overflow-hidden border-2 transition-all cursor-move ${
                         draggedItem?.id === img.id 
                           ? 'border-[#8B6F47] opacity-50 scale-95' 
@@ -338,6 +345,7 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
                       onDragStart={(e) => handleDragStart(e, img)}
                       onDragOver={handleDragOver}
                       onDrop={(e) => handleDrop(e, img)}
+                      onDragEnd={handleDragEnd}
                       className={`relative group aspect-square rounded-lg overflow-hidden border-2 transition-all cursor-move ${
                         draggedItem?.id === img.id 
                           ? 'border-[#8B6F47] opacity-50 scale-95' 
