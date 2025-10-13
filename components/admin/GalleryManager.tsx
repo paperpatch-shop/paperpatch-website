@@ -104,18 +104,32 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
     }
 
     try {
+      console.log('Dropping', draggedItem.id, 'onto', targetImage.id);
+      
       // Get all images in the same category
       const categoryImages = images
         .filter(img => img.category === targetImage.category)
-        .sort((a, b) => a.order_index - b.order_index);
+        .sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
+
+      console.log('Category images:', categoryImages.map(img => ({ id: img.id, order: img.order_index })));
 
       const draggedIndex = categoryImages.findIndex(img => img.id === draggedItem.id);
       const targetIndex = categoryImages.findIndex(img => img.id === targetImage.id);
+
+      console.log('Dragged index:', draggedIndex, 'Target index:', targetIndex);
+
+      if (draggedIndex === -1 || targetIndex === -1) {
+        console.error('Could not find image indices');
+        setDraggedItem(null);
+        return;
+      }
 
       // Reorder the array
       const reordered = [...categoryImages];
       const [removed] = reordered.splice(draggedIndex, 1);
       reordered.splice(targetIndex, 0, removed);
+
+      console.log('New order:', reordered.map((img, idx) => ({ id: img.id, newOrder: idx })));
 
       // Update order_index for all affected images
       const updates = reordered.map((img, index) => 
@@ -123,10 +137,11 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
       );
 
       await Promise.all(updates);
+      console.log('Order updated successfully');
       await loadImages();
     } catch (err) {
-      setError('Failed to reorder images');
-      console.error(err);
+      setError('Failed to reorder images. Make sure the order_index column exists in your database.');
+      console.error('Reorder error:', err);
     } finally {
       setDraggedItem(null);
     }
@@ -162,6 +177,7 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
             <div className="text-sm text-blue-800">
               <p className="font-semibold mb-1">Gallery Management</p>
               <p>Upload new images or delete existing ones. <strong>Drag and drop images to rearrange them</strong> - the order will be reflected on the public gallery.</p>
+              <p className="mt-2 text-xs"><strong>Note:</strong> If drag-and-drop doesn't work, you need to add the order_index column to your gallery_images table in Supabase.</p>
             </div>
           </div>
 

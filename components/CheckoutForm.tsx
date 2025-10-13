@@ -108,11 +108,11 @@ export default function CheckoutForm({ orderItem, orderItems, onSubmit, onBack }
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Shipping Information */}
+        {/* Delivery Information */}
         <div>
           <h3 className="font-semibold text-[#6B5444] mb-4 flex items-center space-x-2">
             <MapPin className="w-5 h-5 text-[#8B6F47]" />
-            <span>Shipping Information</span>
+            <span>Delivery Information</span>
           </h3>
 
           <div className="space-y-4">
@@ -333,7 +333,7 @@ export default function CheckoutForm({ orderItem, orderItems, onSubmit, onBack }
               </>
             )}
             <div className="flex justify-between">
-              <span className="text-[#6B5444]/80">Shipping</span>
+              <span className="text-[#6B5444]/80">Delivery</span>
               <span className="font-medium">৳{shippingCost}</span>
             </div>
             <div className="border-t border-[#C4A57B] pt-2 mt-2">

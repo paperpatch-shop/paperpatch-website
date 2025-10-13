@@ -80,7 +80,7 @@ export default function OrderConfirmation({ order, onStartNew }: OrderConfirmati
             <p className="text-sm text-[#6B5444]/80">{order.shipping.address}</p>
             <p className="text-sm text-[#6B5444]/80">{order.shipping.city}</p>
             <p className="text-sm font-medium text-[#8B6F47] mt-1">
-              Shipping: ৳{order.shippingCost}
+              Delivery: ৳{order.shippingCost}
             </p>
           </div>
         </div>

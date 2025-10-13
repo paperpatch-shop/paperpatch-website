@@ -166,6 +166,7 @@ function generateCustomerEmailHTML(data: OrderEmailData): string {
           .item-detail {
             display: flex;
             justify-content: space-between;
+            gap: 12px;
             font-size: 14px;
             color: #666;
             margin: 4px 0;
@@ -185,9 +186,11 @@ function generateCustomerEmailHTML(data: OrderEmailData): string {
             font-weight: 600;
             color: #666;
             min-width: 80px;
+            flex-shrink: 0;
           }
           .info-value {
             color: #2c2c2c;
+            flex: 1;
           }
           .total-section {
             background: #6B5444;
@@ -199,6 +202,7 @@ function generateCustomerEmailHTML(data: OrderEmailData): string {
           .total-row {
             display: flex;
             justify-content: space-between;
+            gap: 12px;
             margin: 10px 0;
             font-size: 15px;
           }
@@ -264,7 +268,7 @@ function generateCustomerEmailHTML(data: OrderEmailData): string {
                 <span>৳${data.subtotal}</span>
               </div>
               <div class="total-row">
-                <span>Shipping</span>
+                <span>Delivery</span>
                 <span>৳${data.shippingCost}</span>
               </div>
               <div class="total-row total-final">
@@ -366,6 +370,7 @@ function generateAdminEmailHTML(data: OrderEmailData): string {
           }
           .info-row {
             display: flex;
+            gap: 12px;
             margin: 8px 0;
             font-size: 14px;
           }
@@ -373,9 +378,11 @@ function generateAdminEmailHTML(data: OrderEmailData): string {
             font-weight: 600;
             color: #666;
             min-width: 100px;
+            flex-shrink: 0;
           }
           .info-value {
             color: #2c2c2c;
+            flex: 1;
           }
           .item-card {
             background: white;
@@ -393,6 +400,7 @@ function generateAdminEmailHTML(data: OrderEmailData): string {
           .item-detail {
             display: flex;
             justify-content: space-between;
+            gap: 12px;
             font-size: 14px;
             color: #666;
             margin: 4px 0;
@@ -464,7 +472,7 @@ function generateAdminEmailHTML(data: OrderEmailData): string {
                 <span class="info-value">৳${data.subtotal}</span>
               </div>
               <div class="info-row">
-                <span class="info-label">Shipping</span>
+                <span class="info-label">Delivery</span>
                 <span class="info-value">৳${data.shippingCost}</span>
               </div>
               <div class="info-row">
