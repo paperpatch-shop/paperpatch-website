@@ -67,199 +67,237 @@ function generateCustomerEmailHTML(data: OrderEmailData): string {
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="https://fonts.googleapis.com/css2?family=Coming+Soon&display=swap" rel="stylesheet">
         <style>
-          body {
-            font-family: 'Coming Soon', cursive;
-            line-height: 2.2;
-            color: #1a1a1a;
-            max-width: 650px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #e8e8e8;
-          }
-          .notebook {
-            background: white;
-            border: 3px solid #2c2c2c;
-            border-radius: 8px;
+          * {
+            margin: 0;
             padding: 0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            position: relative;
-            background-image: 
-              repeating-linear-gradient(
-                transparent,
-                transparent 33px,
-                #4A90E2 33px,
-                #4A90E2 34px
-              ),
-              linear-gradient(90deg, transparent 45px, #DC143C 45px, #DC143C 47px, transparent 47px);
-            background-size: 100% 34px;
+            box-sizing: border-box;
+          }
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #2c2c2c;
+            background: #f5f5f5;
+            padding: 20px;
+          }
+          .email-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
           }
           .header {
+            background: linear-gradient(135deg, #8B6F47 0%, #6B5444 100%);
+            padding: 40px 30px;
             text-align: center;
-            padding: 40px 60px 20px 60px;
-            position: relative;
           }
           .logo {
-            max-width: 180px;
+            max-width: 160px;
             height: auto;
-            margin: 0 auto 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 0 auto;
             display: block;
           }
-          .header-text {
-            background: rgba(255, 255, 0, 0.4);
-            display: inline-block;
-            padding: 5px 15px;
-            font-size: 18px;
-            margin-top: 10px;
-          }
-          .hole {
-            width: 16px;
-            height: 16px;
-            background: #2c2c2c;
-            border-radius: 50%;
-            position: absolute;
-            left: 15px;
-          }
-          .hole-1 { top: 60px; }
-          .hole-2 { top: 50%; }
-          .hole-3 { bottom: 60px; }
-          .content {
-            padding: 20px 60px 40px 60px;
-            position: relative;
-          }
-          .order-badge {
-            background: rgba(255, 255, 0, 0.4);
-            padding: 8px 20px;
-            display: inline-block;
+          .header-title {
+            color: white;
             font-size: 20px;
-            font-weight: bold;
-            margin: 10px 0 20px 0;
+            font-weight: 600;
+            margin-top: 20px;
+          }
+          .content {
+            padding: 40px 30px;
+          }
+          .order-number {
+            background: #FFF9F0;
+            border-left: 4px solid #8B6F47;
+            padding: 16px 20px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+          }
+          .order-number strong {
+            color: #6B5444;
+            font-size: 18px;
           }
           .greeting {
-            font-size: 18px;
-            margin: 20px 0;
+            font-size: 16px;
+            color: #2c2c2c;
+            margin-bottom: 12px;
+          }
+          .message {
+            color: #666;
+            margin-bottom: 30px;
           }
           .section-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin: 25px 0 15px 0;
-            text-decoration: underline;
-            text-decoration-color: #4A90E2;
-            text-decoration-thickness: 2px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #6B5444;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 30px 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #E5D5C0;
           }
-          .item-box {
-            background: rgba(255, 255, 0, 0.15);
-            padding: 12px 15px;
-            margin: 15px 0;
-            border-left: 4px solid #DC143C;
+          .item-card {
+            background: #FAFAFA;
+            border: 1px solid #E5E5E5;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
           }
-          .item-row {
+          .item-header {
             display: flex;
             justify-content: space-between;
-            margin: 5px 0;
+            align-items: center;
+            margin-bottom: 10px;
+          }
+          .item-name {
+            font-weight: 600;
+            color: #2c2c2c;
+          }
+          .item-price {
+            font-weight: 700;
+            color: #8B6F47;
             font-size: 16px;
           }
-          .total-box {
-            background: rgba(74, 144, 226, 0.2);
-            padding: 20px;
-            margin: 25px 0;
-            border: 2px solid #4A90E2;
+          .item-detail {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #666;
+            margin: 4px 0;
+          }
+          .info-card {
+            background: #FAFAFA;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 12px;
+          }
+          .info-row {
+            display: flex;
+            margin: 8px 0;
+            font-size: 14px;
+          }
+          .info-label {
+            font-weight: 600;
+            color: #666;
+            min-width: 80px;
+          }
+          .info-value {
+            color: #2c2c2c;
+          }
+          .total-section {
+            background: #6B5444;
+            color: white;
+            padding: 24px;
+            border-radius: 8px;
+            margin-top: 30px;
           }
           .total-row {
             display: flex;
             justify-content: space-between;
-            margin: 8px 0;
-            font-size: 17px;
+            margin: 10px 0;
+            font-size: 15px;
           }
-          .final-total {
-            font-size: 22px;
-            font-weight: bold;
-            border-top: 2px solid #2c2c2c;
-            padding-top: 12px;
-            margin-top: 12px;
+          .total-final {
+            border-top: 2px solid rgba(255,255,255,0.3);
+            padding-top: 16px;
+            margin-top: 16px;
+            font-size: 20px;
+            font-weight: 700;
           }
-          .info-section {
-            background: rgba(255, 255, 0, 0.15);
-            padding: 15px;
-            margin: 20px 0;
-            border-left: 4px solid #4A90E2;
-          }
-          .footer-text {
+          .footer {
+            background: #FAFAFA;
+            padding: 30px;
             text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px dashed #4A90E2;
-            font-size: 16px;
+            font-size: 14px;
+            color: #666;
+          }
+          .footer-link {
+            color: #8B6F47;
+            text-decoration: none;
+            font-weight: 600;
           }
         </style>
       </head>
       <body>
-        <div class="notebook">
-          <div class="hole hole-1"></div>
-          <div class="hole hole-2"></div>
-          <div class="hole hole-3"></div>
-          
+        <div class="email-wrapper">
           <div class="header">
             <img src="https://paperpatch.shop/logo.png" alt="Paperpatch" class="logo" />
-            <div class="header-text">Thank you for your order!</div>
+            <div class="header-title">Order Confirmation</div>
           </div>
 
           <div class="content">
-            <div class="order-badge">Order #${data.orderId}</div>
+            <div class="order-number">
+              <strong>Order #${data.orderId}</strong>
+            </div>
 
             <div class="greeting">Hi ${data.customerName},</div>
-            <p>We've received your order and will start processing it soon. You'll receive updates as your order progresses.</p>
+            <div class="message">
+              Thank you for your order! We've received it and will start processing soon.
+            </div>
 
-            <div class="section-title">📦 Order Details</div>
+            <div class="section-title">Order Items</div>
             ${data.items.map((item, index) => `
-              <div class="item-box">
-                <div class="item-row">
-                  <span><strong>Poster ${index + 1}</strong></span>
-                  <span><strong>৳${item.price}</strong></span>
+              <div class="item-card">
+                <div class="item-header">
+                  <span class="item-name">Poster ${index + 1}</span>
+                  <span class="item-price">৳${item.price}</span>
                 </div>
-                <div class="item-row">
-                  <span>Size:</span>
+                <div class="item-detail">
+                  <span>Size</span>
                   <span>${item.width}" × ${item.height}"</span>
                 </div>
-                <div class="item-row">
-                  <span>Board:</span>
+                <div class="item-detail">
+                  <span>Board</span>
                   <span>${item.withBoard ? 'Yes' : 'No'}</span>
                 </div>
               </div>
             `).join('')}
 
-            <div class="total-box">
+            <div class="total-section">
               <div class="total-row">
-                <span>Subtotal:</span>
+                <span>Subtotal</span>
                 <span>৳${data.subtotal}</span>
               </div>
               <div class="total-row">
-                <span>Shipping:</span>
+                <span>Shipping</span>
                 <span>৳${data.shippingCost}</span>
               </div>
-              <div class="total-row final-total">
-                <span>Total:</span>
+              <div class="total-row total-final">
+                <span>Total</span>
                 <span>৳${data.total}</span>
               </div>
             </div>
 
-            <div class="section-title">📍 Shipping Information</div>
-            <div class="info-section">
-              <p><strong>Name:</strong> ${data.customerName}</p>
-              <p><strong>Phone:</strong> ${data.customerPhone}</p>
-              <p><strong>Address:</strong> ${data.customerAddress}</p>
+            <div class="section-title">Delivery Details</div>
+            <div class="info-card">
+              <div class="info-row">
+                <span class="info-label">Name</span>
+                <span class="info-value">${data.customerName}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Phone</span>
+                <span class="info-value">${data.customerPhone}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Address</span>
+                <span class="info-value">${data.customerAddress}</span>
+              </div>
             </div>
 
-            <div class="section-title">💳 Payment Method</div>
-            <div class="info-section">
-              <p>${data.paymentMethod}</p>
+            <div class="section-title">Payment</div>
+            <div class="info-card">
+              <div class="info-value">${data.paymentMethod}</div>
             </div>
+          </div>
 
-            <div class="footer-text">
-              <p>Questions? Reach us on Instagram @paperpatchbd</p>
-              <p>🎨 Paperpatch - Handcrafted with care in Dhaka</p>
-            </div>
+          <div class="footer">
+            <p>Questions? Reach us on <a href="https://instagram.com/paperpatchbd" class="footer-link">Instagram @paperpatchbd</a></p>
+            <p style="margin-top: 10px; color: #999; font-size: 13px;">Paperpatch - Handcrafted in Dhaka, Bangladesh</p>
           </div>
         </div>
       </body>
@@ -273,135 +311,146 @@ function generateAdminEmailHTML(data: OrderEmailData): string {
     <html>
       <head>
         <meta charset="utf-8">
-        <link href="https://fonts.googleapis.com/css2?family=Coming+Soon&display=swap" rel="stylesheet">
         <style>
-          body {
-            font-family: 'Coming Soon', cursive;
-            line-height: 2;
-            color: #1a1a1a;
-            max-width: 650px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #e8e8e8;
-          }
-          .notebook {
-            background: white;
-            border: 3px solid #2c2c2c;
-            border-radius: 8px;
+          * {
+            margin: 0;
             padding: 0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            position: relative;
-            background-image: 
-              repeating-linear-gradient(
-                transparent,
-                transparent 33px,
-                #4A90E2 33px,
-                #4A90E2 34px
-              ),
-              linear-gradient(90deg, transparent 45px, #DC143C 45px, #DC143C 47px, transparent 47px);
-            background-size: 100% 34px;
+            box-sizing: border-box;
+          }
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #2c2c2c;
+            background: #f5f5f5;
+            padding: 20px;
+          }
+          .email-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
           }
           .alert-header {
             background: linear-gradient(135deg, #DC143C 0%, #8B0000 100%);
             color: white;
-            padding: 30px 60px;
+            padding: 30px;
             text-align: center;
-            border-radius: 5px 5px 0 0;
           }
           .alert-header h1 {
-            margin: 0;
-            font-size: 28px;
+            font-size: 24px;
+            margin-bottom: 8px;
           }
           .alert-header p {
-            margin: 10px 0 0 0;
-            font-size: 20px;
+            font-size: 18px;
+            opacity: 0.95;
           }
-          .hole {
-            width: 16px;
-            height: 16px;
-            background: #2c2c2c;
-            border-radius: 50%;
-            position: absolute;
-            left: 15px;
-          }
-          .hole-1 { top: 120px; }
-          .hole-2 { top: 50%; }
-          .hole-3 { bottom: 60px; }
           .content {
-            padding: 20px 60px 40px 60px;
+            padding: 30px;
           }
           .section {
-            background: rgba(255, 255, 0, 0.15);
-            padding: 15px;
+            background: #FAFAFA;
+            border-left: 4px solid #8B6F47;
+            padding: 20px;
             margin: 20px 0;
-            border-left: 4px solid #DC143C;
+            border-radius: 4px;
           }
-          .section h2 {
-            margin: 0 0 10px 0;
-            font-size: 20px;
-            text-decoration: underline;
-            text-decoration-color: #4A90E2;
+          .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #6B5444;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
           }
-          .section p {
-            margin: 5px 0;
-            font-size: 16px;
+          .info-row {
+            display: flex;
+            margin: 8px 0;
+            font-size: 14px;
           }
-          .item-box {
+          .info-label {
+            font-weight: 600;
+            color: #666;
+            min-width: 100px;
+          }
+          .info-value {
+            color: #2c2c2c;
+          }
+          .item-card {
             background: white;
-            padding: 12px;
-            margin: 10px 0;
-            border: 2px solid #4A90E2;
+            border: 1px solid #E5E5E5;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px 0;
           }
-          .row {
+          .item-header {
             display: flex;
             justify-content: space-between;
-            margin: 5px 0;
+            margin-bottom: 10px;
+            font-weight: 600;
+          }
+          .item-detail {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #666;
+            margin: 4px 0;
           }
           .total-highlight {
-            background: rgba(74, 144, 226, 0.3);
-            padding: 15px;
-            font-size: 22px;
-            font-weight: bold;
+            background: #6B5444;
+            color: white;
+            padding: 20px;
             text-align: center;
-            margin: 20px 0;
-            border: 2px solid #4A90E2;
+            font-size: 22px;
+            font-weight: 700;
+            border-radius: 8px;
+            margin: 25px 0;
           }
         </style>
       </head>
       <body>
-        <div class="notebook">
+        <div class="email-wrapper">
           <div class="alert-header">
-            <h1>🔔 New Order Received!</h1>
+            <h1>New Order Received</h1>
             <p>Order #${data.orderId}</p>
           </div>
-          
-          <div class="hole hole-1"></div>
-          <div class="hole hole-2"></div>
-          <div class="hole hole-3"></div>
 
           <div class="content">
             <div class="section">
-              <h2>👤 Customer Information</h2>
-              <p><strong>Name:</strong> ${data.customerName}</p>
-              <p><strong>Email:</strong> ${data.customerEmail}</p>
-              <p><strong>Phone:</strong> ${data.customerPhone}</p>
-              <p><strong>Address:</strong> ${data.customerAddress}</p>
+              <div class="section-title">Customer Information</div>
+              <div class="info-row">
+                <span class="info-label">Name</span>
+                <span class="info-value">${data.customerName}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Email</span>
+                <span class="info-value">${data.customerEmail}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Phone</span>
+                <span class="info-value">${data.customerPhone}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Address</span>
+                <span class="info-value">${data.customerAddress}</span>
+              </div>
             </div>
 
             <div class="section">
-              <h2>📦 Order Items</h2>
+              <div class="section-title">Order Items</div>
               ${data.items.map((item, index) => `
-                <div class="item-box">
-                  <div class="row">
-                    <span><strong>Poster ${index + 1}</strong></span>
-                    <span><strong>৳${item.price}</strong></span>
+                <div class="item-card">
+                  <div class="item-header">
+                    <span>Poster ${index + 1}</span>
+                    <span>৳${item.price}</span>
                   </div>
-                  <div class="row">
-                    <span>Size:</span>
+                  <div class="item-detail">
+                    <span>Size</span>
                     <span>${item.width}" × ${item.height}"</span>
                   </div>
-                  <div class="row">
-                    <span>Board:</span>
+                  <div class="item-detail">
+                    <span>Board</span>
                     <span>${item.withBoard ? 'Yes' : 'No'}</span>
                   </div>
                 </div>
@@ -409,14 +458,23 @@ function generateAdminEmailHTML(data: OrderEmailData): string {
             </div>
 
             <div class="section">
-              <h2>💰 Payment Details</h2>
-              <p><strong>Subtotal:</strong> ৳${data.subtotal}</p>
-              <p><strong>Shipping:</strong> ৳${data.shippingCost}</p>
-              <p><strong>Payment Method:</strong> ${data.paymentMethod}</p>
+              <div class="section-title">Payment Details</div>
+              <div class="info-row">
+                <span class="info-label">Subtotal</span>
+                <span class="info-value">৳${data.subtotal}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Shipping</span>
+                <span class="info-value">৳${data.shippingCost}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Payment</span>
+                <span class="info-value">${data.paymentMethod}</span>
+              </div>
             </div>
 
             <div class="total-highlight">
-              Total Amount: ৳${data.total}
+              Total: ৳${data.total}
             </div>
           </div>
         </div>
