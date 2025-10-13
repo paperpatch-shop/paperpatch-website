@@ -67,177 +67,199 @@ function generateCustomerEmailHTML(data: OrderEmailData): string {
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css2?family=Coming+Soon&display=swap" rel="stylesheet">
         <style>
           body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
+            font-family: 'Coming Soon', cursive;
+            line-height: 2.2;
+            color: #1a1a1a;
+            max-width: 650px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #FFF9F0;
+            background-color: #e8e8e8;
           }
-          .container {
+          .notebook {
             background: white;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 3px solid #2c2c2c;
+            border-radius: 8px;
+            padding: 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: relative;
+            background-image: 
+              repeating-linear-gradient(
+                transparent,
+                transparent 33px,
+                #4A90E2 33px,
+                #4A90E2 34px
+              ),
+              linear-gradient(90deg, transparent 45px, #DC143C 45px, #DC143C 47px, transparent 47px);
+            background-size: 100% 34px;
           }
           .header {
             text-align: center;
-            border-bottom: 3px solid #8B6F47;
-            padding-bottom: 25px;
-            margin-bottom: 30px;
+            padding: 40px 60px 20px 60px;
+            position: relative;
           }
           .logo {
-            max-width: 200px;
+            max-width: 180px;
             height: auto;
-            margin: 0 auto 15px;
+            margin: 0 auto 10px;
             display: block;
           }
-          .header p {
-            color: #8B6F47;
-            margin: 10px 0 0 0;
-            font-size: 16px;
-            font-weight: 500;
+          .header-text {
+            background: rgba(255, 255, 0, 0.4);
+            display: inline-block;
+            padding: 5px 15px;
+            font-size: 18px;
+            margin-top: 10px;
           }
-          .order-id {
-            background: #FFF9F0;
-            padding: 15px;
-            border-radius: 8px;
+          .hole {
+            width: 16px;
+            height: 16px;
+            background: #2c2c2c;
+            border-radius: 50%;
+            position: absolute;
+            left: 15px;
+          }
+          .hole-1 { top: 60px; }
+          .hole-2 { top: 50%; }
+          .hole-3 { bottom: 60px; }
+          .content {
+            padding: 20px 60px 40px 60px;
+            position: relative;
+          }
+          .order-badge {
+            background: rgba(255, 255, 0, 0.4);
+            padding: 8px 20px;
+            display: inline-block;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 10px 0 20px 0;
+          }
+          .greeting {
+            font-size: 18px;
             margin: 20px 0;
-            text-align: center;
-            border: 2px solid #E5D5C0;
           }
-          .order-id strong {
-            color: #8B6F47;
-            font-size: 18px;
+          .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 25px 0 15px 0;
+            text-decoration: underline;
+            text-decoration-color: #4A90E2;
+            text-decoration-thickness: 2px;
           }
-          .section {
-            margin: 25px 0;
+          .item-box {
+            background: rgba(255, 255, 0, 0.15);
+            padding: 12px 15px;
+            margin: 15px 0;
+            border-left: 4px solid #DC143C;
           }
-          .section h2 {
-            color: #6B5444;
-            font-size: 18px;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #E5D5C0;
-            padding-bottom: 8px;
-          }
-          .item {
-            background: #FFF9F0;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 8px;
-            border-left: 4px solid #8B6F47;
-          }
-          .item-details {
+          .item-row {
             display: flex;
             justify-content: space-between;
             margin: 5px 0;
+            font-size: 16px;
           }
-          .total-section {
-            background: #8B6F47;
-            color: white;
+          .total-box {
+            background: rgba(74, 144, 226, 0.2);
             padding: 20px;
-            border-radius: 8px;
-            margin-top: 25px;
+            margin: 25px 0;
+            border: 2px solid #4A90E2;
           }
           .total-row {
             display: flex;
             justify-content: space-between;
             margin: 8px 0;
+            font-size: 17px;
           }
-          .total-row.final {
-            font-size: 20px;
+          .final-total {
+            font-size: 22px;
             font-weight: bold;
-            border-top: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid #2c2c2c;
             padding-top: 12px;
             margin-top: 12px;
           }
-          .footer {
+          .info-section {
+            background: rgba(255, 255, 0, 0.15);
+            padding: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #4A90E2;
+          }
+          .footer-text {
             text-align: center;
             margin-top: 30px;
             padding-top: 20px;
-            border-top: 2px solid #E5D5C0;
-            color: #6B5444;
-          }
-          .info-box {
-            background: #FFF9F0;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 10px 0;
+            border-top: 2px dashed #4A90E2;
+            font-size: 16px;
           }
         </style>
       </head>
       <body>
-        <div class="container">
+        <div class="notebook">
+          <div class="hole hole-1"></div>
+          <div class="hole hole-2"></div>
+          <div class="hole hole-3"></div>
+          
           <div class="header">
             <img src="https://paperpatch.shop/logo.png" alt="Paperpatch" class="logo" />
-            <p>Thank you for your order!</p>
+            <div class="header-text">Thank you for your order!</div>
           </div>
 
-          <div class="order-id">
-            <strong>Order #${data.orderId}</strong>
-          </div>
+          <div class="content">
+            <div class="order-badge">Order #${data.orderId}</div>
 
-          <p>Hi ${data.customerName},</p>
-          <p>We've received your order and will start processing it soon. You'll receive updates as your order progresses.</p>
+            <div class="greeting">Hi ${data.customerName},</div>
+            <p>We've received your order and will start processing it soon. You'll receive updates as your order progresses.</p>
 
-          <div class="section">
-            <h2>📦 Order Details</h2>
+            <div class="section-title">📦 Order Details</div>
             ${data.items.map((item, index) => `
-              <div class="item">
-                <div class="item-details">
+              <div class="item-box">
+                <div class="item-row">
                   <span><strong>Poster ${index + 1}</strong></span>
                   <span><strong>৳${item.price}</strong></span>
                 </div>
-                <div class="item-details">
+                <div class="item-row">
                   <span>Size:</span>
                   <span>${item.width}" × ${item.height}"</span>
                 </div>
-                <div class="item-details">
+                <div class="item-row">
                   <span>Board:</span>
                   <span>${item.withBoard ? 'Yes' : 'No'}</span>
                 </div>
               </div>
             `).join('')}
-          </div>
 
-          <div class="total-section">
-            <div class="total-row">
-              <span>Subtotal:</span>
-              <span>৳${data.subtotal}</span>
+            <div class="total-box">
+              <div class="total-row">
+                <span>Subtotal:</span>
+                <span>৳${data.subtotal}</span>
+              </div>
+              <div class="total-row">
+                <span>Shipping:</span>
+                <span>৳${data.shippingCost}</span>
+              </div>
+              <div class="total-row final-total">
+                <span>Total:</span>
+                <span>৳${data.total}</span>
+              </div>
             </div>
-            <div class="total-row">
-              <span>Shipping:</span>
-              <span>৳${data.shippingCost}</span>
-            </div>
-            <div class="total-row final">
-              <span>Total:</span>
-              <span>৳${data.total}</span>
-            </div>
-          </div>
 
-          <div class="section">
-            <h2>📍 Delivery Information</h2>
-            <div class="info-box">
-              <p style="margin: 5px 0;"><strong>Name:</strong> ${data.customerName}</p>
-              <p style="margin: 5px 0;"><strong>Phone:</strong> ${data.customerPhone}</p>
-              <p style="margin: 5px 0;"><strong>Address:</strong> ${data.customerAddress}</p>
+            <div class="section-title">📍 Shipping Information</div>
+            <div class="info-section">
+              <p><strong>Name:</strong> ${data.customerName}</p>
+              <p><strong>Phone:</strong> ${data.customerPhone}</p>
+              <p><strong>Address:</strong> ${data.customerAddress}</p>
             </div>
-          </div>
 
-          <div class="section">
-            <h2>💳 Payment Method</h2>
-            <div class="info-box">
-              <p style="margin: 5px 0;">${data.paymentMethod}</p>
+            <div class="section-title">💳 Payment Method</div>
+            <div class="info-section">
+              <p>${data.paymentMethod}</p>
             </div>
-          </div>
 
-          <div class="footer">
-            <p><strong>Questions?</strong></p>
-            <p>Contact us at ${process.env.ADMIN_EMAIL}</p>
-            <p style="color: #8B6F47; margin-top: 20px;">Thank you for choosing Paperpatch! 🎨</p>
+            <div class="footer-text">
+              <p>Questions? Reach us on Instagram @paperpatchbd</p>
+              <p>🎨 Paperpatch - Handcrafted with care in Dhaka</p>
+            </div>
           </div>
         </div>
       </body>
@@ -251,136 +273,152 @@ function generateAdminEmailHTML(data: OrderEmailData): string {
     <html>
       <head>
         <meta charset="utf-8">
+        <link href="https://fonts.googleapis.com/css2?family=Coming+Soon&display=swap" rel="stylesheet">
         <style>
           body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
+            font-family: 'Coming Soon', cursive;
+            line-height: 2;
+            color: #1a1a1a;
+            max-width: 650px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
+            background-color: #e8e8e8;
           }
-          .container {
+          .notebook {
             background: white;
+            border: 3px solid #2c2c2c;
             border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: relative;
+            background-image: 
+              repeating-linear-gradient(
+                transparent,
+                transparent 33px,
+                #4A90E2 33px,
+                #4A90E2 34px
+              ),
+              linear-gradient(90deg, transparent 45px, #DC143C 45px, #DC143C 47px, transparent 47px);
+            background-size: 100% 34px;
           }
-          .alert {
-            background: linear-gradient(135deg, #8B6F47 0%, #6B5444 100%);
+          .alert-header {
+            background: linear-gradient(135deg, #DC143C 0%, #8B0000 100%);
             color: white;
-            padding: 30px 20px;
-            border-radius: 12px;
+            padding: 30px 60px;
             text-align: center;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 12px rgba(107, 84, 68, 0.3);
+            border-radius: 5px 5px 0 0;
           }
-          .alert h1 {
-            margin: 0 0 10px 0;
-            font-size: 26px;
+          .alert-header h1 {
+            margin: 0;
+            font-size: 28px;
           }
-          .logo-admin {
-            max-width: 150px;
-            height: auto;
-            margin: 0 auto 15px;
-            display: block;
-            background: white;
-            padding: 10px;
-            border-radius: 8px;
+          .alert-header p {
+            margin: 10px 0 0 0;
+            font-size: 20px;
+          }
+          .hole {
+            width: 16px;
+            height: 16px;
+            background: #2c2c2c;
+            border-radius: 50%;
+            position: absolute;
+            left: 15px;
+          }
+          .hole-1 { top: 120px; }
+          .hole-2 { top: 50%; }
+          .hole-3 { bottom: 60px; }
+          .content {
+            padding: 20px 60px 40px 60px;
           }
           .section {
-            margin: 20px 0;
+            background: rgba(255, 255, 0, 0.15);
             padding: 15px;
-            background: #FFF9F0;
-            border-radius: 8px;
-            border-left: 4px solid #8B6F47;
+            margin: 20px 0;
+            border-left: 4px solid #DC143C;
           }
           .section h2 {
-            color: #6B5444;
-            margin-top: 0;
+            margin: 0 0 10px 0;
+            font-size: 20px;
+            text-decoration: underline;
+            text-decoration-color: #4A90E2;
+          }
+          .section p {
+            margin: 5px 0;
             font-size: 16px;
           }
-          .item {
+          .item-box {
             background: white;
             padding: 12px;
-            margin: 8px 0;
-            border-radius: 6px;
-            border: 1px solid #E5D5C0;
+            margin: 10px 0;
+            border: 2px solid #4A90E2;
           }
           .row {
             display: flex;
             justify-content: space-between;
             margin: 5px 0;
           }
-          .total {
-            background: #6B5444;
-            color: white;
+          .total-highlight {
+            background: rgba(74, 144, 226, 0.3);
             padding: 15px;
-            border-radius: 8px;
-            font-size: 18px;
+            font-size: 22px;
             font-weight: bold;
             text-align: center;
-            margin-top: 20px;
+            margin: 20px 0;
+            border: 2px solid #4A90E2;
           }
         </style>
       </head>
       <body>
-        <div class="container">
-          <div class="alert">
-            <img src="https://paperpatch.shop/logo.png" alt="Paperpatch" class="logo-admin" />
+        <div class="notebook">
+          <div class="alert-header">
             <h1>🔔 New Order Received!</h1>
-            <p style="margin: 10px 0 0 0; font-size: 18px;">Order #${data.orderId}</p>
+            <p>Order #${data.orderId}</p>
           </div>
+          
+          <div class="hole hole-1"></div>
+          <div class="hole hole-2"></div>
+          <div class="hole hole-3"></div>
 
-          <div class="section">
-            <h2>👤 Customer Information</h2>
-            <p><strong>Name:</strong> ${data.customerName}</p>
-            <p><strong>Email:</strong> ${data.customerEmail}</p>
-            <p><strong>Phone:</strong> ${data.customerPhone}</p>
-            <p><strong>Address:</strong> ${data.customerAddress}</p>
-          </div>
+          <div class="content">
+            <div class="section">
+              <h2>👤 Customer Information</h2>
+              <p><strong>Name:</strong> ${data.customerName}</p>
+              <p><strong>Email:</strong> ${data.customerEmail}</p>
+              <p><strong>Phone:</strong> ${data.customerPhone}</p>
+              <p><strong>Address:</strong> ${data.customerAddress}</p>
+            </div>
 
-          <div class="section">
-            <h2>📦 Order Items (${data.items.length})</h2>
-            ${data.items.map((item, index) => `
-              <div class="item">
-                <div class="row">
-                  <strong>Poster ${index + 1}</strong>
-                  <strong>৳${item.price}</strong>
+            <div class="section">
+              <h2>📦 Order Items</h2>
+              ${data.items.map((item, index) => `
+                <div class="item-box">
+                  <div class="row">
+                    <span><strong>Poster ${index + 1}</strong></span>
+                    <span><strong>৳${item.price}</strong></span>
+                  </div>
+                  <div class="row">
+                    <span>Size:</span>
+                    <span>${item.width}" × ${item.height}"</span>
+                  </div>
+                  <div class="row">
+                    <span>Board:</span>
+                    <span>${item.withBoard ? 'Yes' : 'No'}</span>
+                  </div>
                 </div>
-                <div class="row">
-                  <span>Size: ${item.width}" × ${item.height}"</span>
-                  <span>Board: ${item.withBoard ? 'Yes' : 'No'}</span>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-
-          <div class="section">
-            <h2>💰 Payment Details</h2>
-            <div class="row">
-              <span>Subtotal:</span>
-              <span>৳${data.subtotal}</span>
+              `).join('')}
             </div>
-            <div class="row">
-              <span>Shipping:</span>
-              <span>৳${data.shippingCost}</span>
-            </div>
-            <div class="row">
-              <strong>Total:</strong>
-              <strong>৳${data.total}</strong>
-            </div>
-            <p style="margin-top: 10px;"><strong>Payment Method:</strong> ${data.paymentMethod}</p>
-          </div>
 
-          <div class="total">
-            Total Amount: ৳${data.total}
-          </div>
+            <div class="section">
+              <h2>💰 Payment Details</h2>
+              <p><strong>Subtotal:</strong> ৳${data.subtotal}</p>
+              <p><strong>Shipping:</strong> ৳${data.shippingCost}</p>
+              <p><strong>Payment Method:</strong> ${data.paymentMethod}</p>
+            </div>
 
-          <p style="text-align: center; color: #8B6F47; margin-top: 25px;">
-            <strong>Action Required:</strong> Process this order in your admin panel
-          </p>
+            <div class="total-highlight">
+              Total Amount: ৳${data.total}
+            </div>
+          </div>
         </div>
       </body>
     </html>
