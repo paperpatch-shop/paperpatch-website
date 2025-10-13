@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Header from '@/components/Header';
 import MultiImageUpload from '@/components/MultiImageUpload';
 import CheckoutForm from '@/components/CheckoutForm';
@@ -187,12 +188,25 @@ export default function CreatePage() {
       {/* Footer */}
       <footer className="bg-paper-800 text-paper-100 py-8 mt-16">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-sm">
-            © 2025 Paperpatch. All rights reserved.
-          </p>
-          <p className="text-xs mt-2 text-paper-300">
-            Handcrafted with care in Dhaka, Bangladesh
-          </p>
+          <a 
+            href="https://instagram.com/paperpatchbd/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-base text-paper-100/80 hover:text-paper-100 transition-colors duration-200 group"
+          >
+            <span className="font-light">Reach us on</span>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 backdrop-blur-sm hover:bg-white/20 rounded-full shadow-sm group-hover:shadow-md transition-all duration-200 group-hover:scale-105">
+              <Image 
+                src="/instagram-icon.svg" 
+                alt="Instagram" 
+                width={16} 
+                height={16}
+                className="w-4 h-4 brightness-0 invert"
+              />
+              <span className="font-medium text-sm">Instagram</span>
+            </div>
+            <span className="font-light">for any query</span>
+          </a>
         </div>
       </footer>
     </div>
