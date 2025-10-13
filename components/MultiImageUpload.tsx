@@ -29,7 +29,7 @@ const BACKGROUND_IMAGES = [
 ];
 
 // Poster size presets with scale ratios (0.5:0.75:1:1.3)
-const BASE_SIZE = 120; // Reduced from 150 to 120 (20% smaller)
+const BASE_SIZE = 130; // Slightly increased for better visibility
 const POSTER_SIZES = [
   { width: 12, height: 8, label: '12" × 8"', scale: 0.5 },
   { width: 18, height: 12, label: '18" × 12"', scale: 0.75 },
@@ -857,13 +857,13 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
                 setShowScrollDownButton(false);
               }
             }}
-            className="fixed bottom-28 right-4 z-[60] w-12 h-12 bg-[#8B6F47] hover:bg-[#6B5444] text-white rounded-full shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110"
+            className="fixed bottom-32 right-4 z-[60] w-16 h-16 bg-[#8B6F47] hover:bg-[#6B5444] text-white rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 border-4 border-white"
             style={{
               animation: 'subtle-pulse 2s ease-in-out infinite'
             }}
             aria-label="Scroll to preview"
           >
-            <ArrowDown className="w-5 h-5" />
+            <ArrowDown className="w-7 h-7" />
           </button>
         </div>
       )}

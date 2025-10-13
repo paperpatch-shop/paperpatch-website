@@ -86,13 +86,20 @@ function generateCustomerEmailHTML(data: OrderEmailData): string {
           .header {
             text-align: center;
             border-bottom: 3px solid #8B6F47;
-            padding-bottom: 20px;
+            padding-bottom: 25px;
             margin-bottom: 30px;
           }
-          .header h1 {
-            color: #6B5444;
-            margin: 0;
-            font-size: 28px;
+          .logo {
+            max-width: 200px;
+            height: auto;
+            margin: 0 auto 15px;
+            display: block;
+          }
+          .header p {
+            color: #8B6F47;
+            margin: 10px 0 0 0;
+            font-size: 16px;
+            font-weight: 500;
           }
           .order-id {
             background: #FFF9F0;
@@ -165,8 +172,8 @@ function generateCustomerEmailHTML(data: OrderEmailData): string {
       <body>
         <div class="container">
           <div class="header">
-            <h1>🎨 Paperpatch</h1>
-            <p style="color: #8B6F47; margin: 10px 0 0 0;">Thank you for your order!</p>
+            <img src="https://paperpatch.shop/logo.png" alt="Paperpatch" class="logo" />
+            <p>Thank you for your order!</p>
           </div>
 
           <div class="order-id">
@@ -261,16 +268,26 @@ function generateAdminEmailHTML(data: OrderEmailData): string {
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
           }
           .alert {
-            background: #8B6F47;
+            background: linear-gradient(135deg, #8B6F47 0%, #6B5444 100%);
             color: white;
-            padding: 20px;
-            border-radius: 8px;
+            padding: 30px 20px;
+            border-radius: 12px;
             text-align: center;
             margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(107, 84, 68, 0.3);
           }
           .alert h1 {
-            margin: 0;
-            font-size: 24px;
+            margin: 0 0 10px 0;
+            font-size: 26px;
+          }
+          .logo-admin {
+            max-width: 150px;
+            height: auto;
+            margin: 0 auto 15px;
+            display: block;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
           }
           .section {
             margin: 20px 0;
@@ -311,8 +328,9 @@ function generateAdminEmailHTML(data: OrderEmailData): string {
       <body>
         <div class="container">
           <div class="alert">
+            <img src="https://paperpatch.shop/logo.png" alt="Paperpatch" class="logo-admin" />
             <h1>🔔 New Order Received!</h1>
-            <p style="margin: 10px 0 0 0;">Order #${data.orderId}</p>
+            <p style="margin: 10px 0 0 0; font-size: 18px;">Order #${data.orderId}</p>
           </div>
 
           <div class="section">
