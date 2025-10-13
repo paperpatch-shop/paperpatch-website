@@ -35,6 +35,11 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
     try {
       setIsLoading(true);
       const dbImages = await getGalleryImages();
+      console.log('Loaded images from DB:', dbImages.slice(0, 5).map(img => ({ 
+        id: img.id.substring(0, 8), 
+        category: img.category, 
+        order: img.order_index 
+      })));
       setImages(dbImages);
     } catch (err) {
       setError('Failed to load gallery images');
@@ -86,7 +91,6 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
   };
 
   const handleDragStart = (e: React.DragEvent, image: GalleryImage) => {
-    console.log('Drag started:', image.id);
     setDraggedItem(image);
     e.dataTransfer.effectAllowed = 'move';
   };
@@ -97,7 +101,6 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
   };
 
   const handleDragEnd = () => {
-    console.log('Drag ended');
     setDraggedItem(null);
   };
 
@@ -110,22 +113,15 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
     }
 
     try {
-      console.log('Dropping', draggedItem.id, 'onto', targetImage.id);
-      
       // Get all images in the same category
       const categoryImages = images
         .filter(img => img.category === targetImage.category)
         .sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
 
-      console.log('Category images:', categoryImages.map(img => ({ id: img.id, order: img.order_index })));
-
       const draggedIndex = categoryImages.findIndex(img => img.id === draggedItem.id);
       const targetIndex = categoryImages.findIndex(img => img.id === targetImage.id);
 
-      console.log('Dragged index:', draggedIndex, 'Target index:', targetIndex);
-
       if (draggedIndex === -1 || targetIndex === -1) {
-        console.error('Could not find image indices');
         setDraggedItem(null);
         return;
       }
@@ -135,26 +131,49 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
       const [removed] = reordered.splice(draggedIndex, 1);
       reordered.splice(targetIndex, 0, removed);
 
-      console.log('New order:', reordered.map((img, idx) => ({ id: img.id, newOrder: idx })));
+      // Update order_index in the reordered array for immediate UI update
+      const reorderedWithNewIndex = reordered.map((img, index) => ({
+        ...img,
+        order_index: index
+      }));
 
-      // Update order_index for all affected images
-      const updates = reordered.map((img, index) => 
-        updateGalleryImageOrder(img.id, index)
+      // Optimistically update UI immediately
+      const otherCategoryImages = images.filter(img => img.category !== targetImage.category);
+      const newImages = [...otherCategoryImages, ...reorderedWithNewIndex].sort((a, b) => {
+        if (a.category !== b.category) return a.category.localeCompare(b.category);
+        return (a.order_index || 0) - (b.order_index || 0);
+      });
+      setImages(newImages);
+
+      // Update order_index for all affected images in database
+      console.log('Updating database with new order:', reorderedWithNewIndex.map(img => ({ id: img.id, order: img.order_index })));
+      
+      const updates = reorderedWithNewIndex.map((img) => 
+        updateGalleryImageOrder(img.id, img.order_index)
       );
 
-      await Promise.all(updates);
-      console.log('Order updated successfully');
-      await loadImages();
+      try {
+        await Promise.all(updates);
+        console.log('Database updated successfully');
+      } catch (err) {
+        console.error('Failed to update order in database:', err);
+        setError('Failed to save new order');
+      }
     } catch (err) {
-      setError('Failed to reorder images. Make sure the order_index column exists in your database.');
-      console.error('Reorder error:', err);
+      setError('Failed to reorder images');
+      console.error(err);
     } finally {
       setDraggedItem(null);
     }
   };
 
-  const previousOrders = images.filter(img => img.category === 'previous_orders');
-  const reviews = images.filter(img => img.category === 'reviews');
+  const previousOrders = images
+    .filter(img => img.category === 'previous_orders')
+    .sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
+  
+  const reviews = images
+    .filter(img => img.category === 'reviews')
+    .sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
