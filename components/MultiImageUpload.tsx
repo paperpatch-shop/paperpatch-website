@@ -244,19 +244,25 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
 
   const updateImageSize = (id: string, sizeIndex: number) => {
     const size = POSTER_SIZES[sizeIndex];
-    setImages(images.map(img => 
-      img.id === id 
-        ? { 
-            ...img, 
-            orderItem: { 
-              ...img.orderItem, 
-              width: size.width, 
-              height: size.height,
-              price: getPriceForSize(size.width, size.height, img.orderItem.withBoard)
-            } 
-          }
-        : img
-    ));
+    
+    setImages(images.map(img => {
+      if (img.id === id) {
+        // Force withBoard to false if selecting 35x24
+        const withBoard = (size.width === 35 && size.height === 24) ? false : img.orderItem.withBoard;
+        
+        return { 
+          ...img, 
+          orderItem: { 
+            ...img.orderItem, 
+            width: size.width, 
+            height: size.height,
+            withBoard,
+            price: getPriceForSize(size.width, size.height, withBoard)
+          } 
+        };
+      }
+      return img;
+    }));
   };
 
   const updateBoardOption = (id: string, withBoard: boolean) => {
