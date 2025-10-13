@@ -249,7 +249,7 @@ function generateCustomerEmailHTML(data: OrderEmailData): string {
               <div class="item-card">
                 <div class="item-header">
                   <span class="item-name">Poster ${index + 1}</span>
-                  <span class="item-price">৳${item.price}</span>
+                  <span class="item-price">৳ ${item.price}</span>
                 </div>
                 <div class="item-detail">
                   <span>Size - ${item.width}" × ${item.height}"</span>
@@ -263,15 +263,15 @@ function generateCustomerEmailHTML(data: OrderEmailData): string {
             <div class="total-section">
               <div class="total-row">
                 <span>Subtotal -</span>
-                <span>৳${data.subtotal}</span>
+                <span>৳ ${data.subtotal}</span>
               </div>
               <div class="total-row">
                 <span>Delivery -</span>
-                <span>৳${data.shippingCost}</span>
+                <span>৳ ${data.shippingCost}</span>
               </div>
               <div class="total-row total-final">
                 <span>Total -</span>
-                <span>৳${data.total}</span>
+                <span>৳ ${data.total}</span>
               </div>
             </div>
 
@@ -449,7 +449,7 @@ function generateAdminEmailHTML(data: OrderEmailData): string {
                 <div class="item-card">
                   <div class="item-header">
                     <span>Poster ${index + 1}</span>
-                    <span>৳${item.price}</span>
+                    <span>৳ ${item.price}</span>
                   </div>
                   <div class="item-detail">
                     <span>Size - ${item.width}" × ${item.height}"</span>
@@ -465,11 +465,11 @@ function generateAdminEmailHTML(data: OrderEmailData): string {
               <div class="section-title">Payment Details</div>
               <div class="info-row">
                 <span class="info-label">Subtotal -</span>
-                <span class="info-value">৳${data.subtotal}</span>
+                <span class="info-value">৳ ${data.subtotal}</span>
               </div>
               <div class="info-row">
                 <span class="info-label">Delivery -</span>
-                <span class="info-value">৳${data.shippingCost}</span>
+                <span class="info-value">৳ ${data.shippingCost}</span>
               </div>
               <div class="info-row">
                 <span class="info-label">Payment</span>
@@ -478,7 +478,7 @@ function generateAdminEmailHTML(data: OrderEmailData): string {
             </div>
 
             <div class="total-highlight">
-              Total: ৳${data.total}
+              Total: ৳ ${data.total}
             </div>
           </div>
         </div>
