@@ -149,8 +149,8 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
   };
 
   const validateFile = (file: File): boolean => {
-    if (!file.type.match(/image\/(jpeg|jpg|png)/)) {
-      setError('Please upload JPEG or PNG images only');
+    if (!file.type.match(/image\/(jpeg|jpg|png|webp|heic|heif|gif|bmp)/)) {
+      setError('Please upload valid image files (JPEG, PNG, WebP, HEIC, GIF, BMP)');
       return false;
     }
     if (file.size > 10 * 1024 * 1024) {
@@ -456,7 +456,7 @@ export default function MultiImageUpload({ onContinue, onBack, initialItems }: M
               <input
                 id="multi-file-input"
                 type="file"
-                accept="image/jpeg,image/jpg,image/png"
+                accept="image/jpeg,image/jpg,image/png,image/webp,image/heic,image/heif,image/gif,image/bmp"
                 multiple
                 onChange={(e) => handleFileSelect(e.target.files)}
                 className="hidden"
