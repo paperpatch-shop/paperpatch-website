@@ -252,11 +252,11 @@ function generateCustomerEmailHTML(data: OrderEmailData): string {
                   <span class="item-price">৳${item.price}</span>
                 </div>
                 <div class="item-detail">
-                  <span>Size</span>
+                  <span>Size -</span>
                   <span>${item.width}" × ${item.height}"</span>
                 </div>
                 <div class="item-detail">
-                  <span>Board</span>
+                  <span>Board -</span>
                   <span>${item.withBoard ? 'Yes' : 'No'}</span>
                 </div>
               </div>
@@ -264,15 +264,15 @@ function generateCustomerEmailHTML(data: OrderEmailData): string {
 
             <div class="total-section">
               <div class="total-row">
-                <span>Subtotal</span>
+                <span>Subtotal -</span>
                 <span>৳${data.subtotal}</span>
               </div>
               <div class="total-row">
-                <span>Delivery</span>
+                <span>Delivery -</span>
                 <span>৳${data.shippingCost}</span>
               </div>
               <div class="total-row total-final">
-                <span>Total</span>
+                <span>Total -</span>
                 <span>৳${data.total}</span>
               </div>
             </div>
@@ -454,11 +454,11 @@ function generateAdminEmailHTML(data: OrderEmailData): string {
                     <span>৳${item.price}</span>
                   </div>
                   <div class="item-detail">
-                    <span>Size</span>
+                    <span>Size -</span>
                     <span>${item.width}" × ${item.height}"</span>
                   </div>
                   <div class="item-detail">
-                    <span>Board</span>
+                    <span>Board -</span>
                     <span>${item.withBoard ? 'Yes' : 'No'}</span>
                   </div>
                 </div>
@@ -468,11 +468,11 @@ function generateAdminEmailHTML(data: OrderEmailData): string {
             <div class="section">
               <div class="section-title">Payment Details</div>
               <div class="info-row">
-                <span class="info-label">Subtotal</span>
+                <span class="info-label">Subtotal -</span>
                 <span class="info-value">৳${data.subtotal}</span>
               </div>
               <div class="info-row">
-                <span class="info-label">Delivery</span>
+                <span class="info-label">Delivery -</span>
                 <span class="info-value">৳${data.shippingCost}</span>
               </div>
               <div class="info-row">

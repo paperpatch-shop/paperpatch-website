@@ -14,7 +14,7 @@ export default function Homepage() {
           loop
           muted
           playsInline
-          className="w-full h-full object-cover opacity-20"
+          className="w-full h-full object-cover opacity-30"
         >
           <source src="/your-video.mp4" type="video/mp4" />
           {/* Fallback for browsers that don't support video */}

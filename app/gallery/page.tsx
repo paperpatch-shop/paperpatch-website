@@ -19,6 +19,11 @@ export default function GalleryPage() {
   const loadImages = async () => {
     try {
       const images = await getGalleryImages();
+      console.log('Loaded gallery images:', images.map(img => ({ 
+        id: img.id, 
+        category: img.category, 
+        order_index: img.order_index 
+      })));
       setDbImages(images);
     } catch (error) {
       console.error('Error loading gallery images:', error);
