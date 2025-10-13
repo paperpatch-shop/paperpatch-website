@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Upload, X, Trash2, Image as ImageIcon, AlertCircle, Info } from 'lucide-react';
-import { getGalleryImages, uploadGalleryImage, deleteGalleryImage } from '@/lib/supabase';
+import { Upload, X, Trash2, Image as ImageIcon, AlertCircle, Info, GripVertical } from 'lucide-react';
+import { getGalleryImages, uploadGalleryImage, deleteGalleryImage, updateGalleryImageOrder } from '@/lib/supabase';
 
 interface GalleryImage {
   id: string;
   image_url: string;
   category: 'previous_orders' | 'reviews';
   created_at: string;
+  order_index: number;
   isStatic?: boolean; // For existing hardcoded images
 }
 
@@ -24,6 +25,7 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<'previous_orders' | 'reviews'>('previous_orders');
   const [error, setError] = useState('');
+  const [draggedItem, setDraggedItem] = useState<GalleryImage | null>(null);
 
   useEffect(() => {
     loadImages();
@@ -83,6 +85,53 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
     }
   };
 
+  const handleDragStart = (e: React.DragEvent, image: GalleryImage) => {
+    setDraggedItem(image);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetImage: GalleryImage) => {
+    e.preventDefault();
+    
+    if (!draggedItem || draggedItem.id === targetImage.id || draggedItem.category !== targetImage.category) {
+      setDraggedItem(null);
+      return;
+    }
+
+    try {
+      // Get all images in the same category
+      const categoryImages = images
+        .filter(img => img.category === targetImage.category)
+        .sort((a, b) => a.order_index - b.order_index);
+
+      const draggedIndex = categoryImages.findIndex(img => img.id === draggedItem.id);
+      const targetIndex = categoryImages.findIndex(img => img.id === targetImage.id);
+
+      // Reorder the array
+      const reordered = [...categoryImages];
+      const [removed] = reordered.splice(draggedIndex, 1);
+      reordered.splice(targetIndex, 0, removed);
+
+      // Update order_index for all affected images
+      const updates = reordered.map((img, index) => 
+        updateGalleryImageOrder(img.id, index)
+      );
+
+      await Promise.all(updates);
+      await loadImages();
+    } catch (err) {
+      setError('Failed to reorder images');
+      console.error(err);
+    } finally {
+      setDraggedItem(null);
+    }
+  };
+
   const previousOrders = images.filter(img => img.category === 'previous_orders');
   const reviews = images.filter(img => img.category === 'reviews');
 
@@ -112,7 +161,7 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
             <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-blue-800">
               <p className="font-semibold mb-1">Gallery Management</p>
-              <p>All images are stored in Supabase. Upload new images or delete existing ones. Changes are reflected immediately on the public gallery.</p>
+              <p>Upload new images or delete existing ones. <strong>Drag and drop images to rearrange them</strong> - the order will be reflected on the public gallery.</p>
             </div>
           </div>
 
@@ -212,17 +261,31 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
               ) : (
                 <div className="grid grid-cols-2 gap-2 max-h-[500px] overflow-y-auto">
                   {previousOrders.map((img) => (
-                    <div key={img.id} className="relative group aspect-square rounded-lg overflow-hidden border border-[#E5D5C0]">
+                    <div 
+                      key={img.id} 
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, img)}
+                      onDragOver={handleDragOver}
+                      onDrop={(e) => handleDrop(e, img)}
+                      className={`relative group aspect-square rounded-lg overflow-hidden border-2 transition-all cursor-move ${
+                        draggedItem?.id === img.id 
+                          ? 'border-[#8B6F47] opacity-50 scale-95' 
+                          : 'border-[#E5D5C0] hover:border-[#C4A57B]'
+                      }`}
+                    >
+                      <div className="absolute top-2 left-2 p-1.5 bg-white/90 rounded-lg opacity-0 group-hover:opacity-100 transition-all shadow-lg z-10">
+                        <GripVertical className="w-4 h-4 text-[#6B5444]" />
+                      </div>
                       <Image
                         src={img.image_url}
                         alt="Gallery image"
                         fill
-                        className="object-cover"
+                        className="object-cover pointer-events-none"
                         sizes="(max-width: 768px) 50vw, 25vw"
                       />
                       <button
                         onClick={() => handleDelete(img.id, img.image_url)}
-                        className="absolute top-2 right-2 p-2 bg-red-600 hover:bg-red-700 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-lg"
+                        className="absolute top-2 right-2 p-2 bg-red-600 hover:bg-red-700 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-lg z-10"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -253,17 +316,31 @@ export default function GalleryManager({ onClose }: GalleryManagerProps) {
               ) : (
                 <div className="grid grid-cols-2 gap-2 max-h-[500px] overflow-y-auto">
                   {reviews.map((img) => (
-                    <div key={img.id} className="relative group aspect-square rounded-lg overflow-hidden border border-[#E5D5C0]">
+                    <div 
+                      key={img.id} 
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, img)}
+                      onDragOver={handleDragOver}
+                      onDrop={(e) => handleDrop(e, img)}
+                      className={`relative group aspect-square rounded-lg overflow-hidden border-2 transition-all cursor-move ${
+                        draggedItem?.id === img.id 
+                          ? 'border-[#8B6F47] opacity-50 scale-95' 
+                          : 'border-[#E5D5C0] hover:border-[#C4A57B]'
+                      }`}
+                    >
+                      <div className="absolute top-2 left-2 p-1.5 bg-white/90 rounded-lg opacity-0 group-hover:opacity-100 transition-all shadow-lg z-10">
+                        <GripVertical className="w-4 h-4 text-[#6B5444]" />
+                      </div>
                       <Image
                         src={img.image_url}
                         alt="Review image"
                         fill
-                        className="object-cover"
+                        className="object-cover pointer-events-none"
                         sizes="(max-width: 768px) 50vw, 25vw"
                       />
                       <button
                         onClick={() => handleDelete(img.id, img.image_url)}
-                        className="absolute top-2 right-2 p-2 bg-red-600 hover:bg-red-700 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-lg"
+                        className="absolute top-2 right-2 p-2 bg-red-600 hover:bg-red-700 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-lg z-10"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

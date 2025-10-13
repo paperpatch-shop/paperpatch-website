@@ -273,7 +273,7 @@ export async function getGalleryImages() {
     const { data, error } = await supabase
       .from('gallery_images')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('order_index', { ascending: true });
 
     if (error) throw error;
     return data || [];
@@ -304,12 +304,25 @@ export async function uploadGalleryImage(file: File, category: 'previous_orders'
       .from('gallery')
       .getPublicUrl(fileName);
 
+    // Get the highest order_index for this category
+    const { data: existingImages } = await supabase
+      .from('gallery_images')
+      .select('order_index')
+      .eq('category', category)
+      .order('order_index', { ascending: false })
+      .limit(1);
+
+    const nextOrderIndex = existingImages && existingImages.length > 0 
+      ? (existingImages[0].order_index || 0) + 1 
+      : 0;
+
     // Save to database
     const { error: dbError } = await supabase
       .from('gallery_images')
       .insert({
         image_url: publicUrl,
         category: category,
+        order_index: nextOrderIndex,
       });
 
     if (dbError) throw dbError;
@@ -349,6 +362,25 @@ export async function deleteGalleryImage(id: string, imageUrl: string) {
     return true;
   } catch (error) {
     console.error('Error deleting gallery image:', error);
+    throw error;
+  }
+}
+
+export async function updateGalleryImageOrder(imageId: string, newOrderIndex: number) {
+  if (!supabase) {
+    throw new Error('Supabase not configured');
+  }
+
+  try {
+    const { error } = await supabase
+      .from('gallery_images')
+      .update({ order_index: newOrderIndex })
+      .eq('id', imageId);
+
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error('Error updating gallery image order:', error);
     throw error;
   }
 }
