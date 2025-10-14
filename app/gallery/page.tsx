@@ -11,6 +11,7 @@ export default function GalleryPage() {
   const [activeTab, setActiveTab] = useState<'orders' | 'reviews'>('orders');
   const [dbImages, setDbImages] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadImages();
@@ -32,12 +33,14 @@ export default function GalleryPage() {
   const previousOrders = dbImages
     .filter(img => img.category === 'previous_orders')
     .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
-    .map(img => img.image_url);
+    .map(img => img.image_url)
+    .filter(url => !failedImages.has(url));
   
   const reviews = dbImages
     .filter(img => img.category === 'reviews')
     .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
-    .map(img => ({ image: img.image_url }));
+    .map(img => ({ image: img.image_url }))
+    .filter(review => !failedImages.has(review.image));
 
   return (
     <div className="min-h-screen bg-[#FFF9F0]">
@@ -150,9 +153,8 @@ export default function GalleryPage() {
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 50vw, 25vw"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
+                      onError={() => {
+                        setFailedImages(prev => new Set(prev).add(src));
                       }}
                     />
                   </div>
@@ -186,9 +188,8 @@ export default function GalleryPage() {
                         fill
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, 50vw"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
+                        onError={() => {
+                          setFailedImages(prev => new Set(prev).add(review.image));
                         }}
                       />
                     </div>
