@@ -4,9 +4,9 @@ export default function StructuredData() {
     '@type': 'LocalBusiness',
     name: 'Paperpatch',
     description: 'Custom self-adhesive poster prints and photo printing service in Bangladesh',
-    url: 'https://paperpatch.vercel.app',
-    logo: 'https://paperpatch.vercel.app/logo.png',
-    image: 'https://paperpatch.vercel.app/logo.png',
+    url: 'https://paperpatch.shop',
+    logo: 'https://paperpatch.shop/logo.png',
+    image: 'https://paperpatch.shop/logo.png',
     priceRange: '৳৳',
     address: {
       '@type': 'PostalAddress',

@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/ahnaf/', '/api/'],
     },
-    sitemap: 'https://paperpatch.vercel.app/sitemap.xml',
+    sitemap: 'https://paperpatch.shop/sitemap.xml',
   }
 }

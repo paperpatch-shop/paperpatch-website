@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Paperpatch - Custom Poster Prints in Bangladesh',
     description: 'Create beautiful custom posters and photo prints. Handmade with care, delivered across Bangladesh.',
-    url: 'https://paperpatch.vercel.app',
+    url: 'https://paperpatch.shop',
     siteName: 'Paperpatch',
     locale: 'en_US',
     type: 'website',
