@@ -24,10 +24,18 @@ const dmMono = DM_Mono({
 export const metadata: Metadata = {
   title: 'Paperpatch - Custom Self-Adhesive Poster Prints in Bangladesh | Photo Prints BD',
   description: 'Order custom self-adhesive poster prints in Bangladesh. High-quality photo prints, personalized wall art, and handmade glue posters delivered across Dhaka and Bangladesh. Affordable prices, fast delivery.',
-  keywords: 'custom posters Bangladesh, self adhesive posters BD, glue posters Dhaka, poster printing BD, photo prints Dhaka, personalized posters, wall art Bangladesh, custom prints BD, poster shop Dhaka, photo printing Bangladesh, handmade posters, adhesive wall art',
+  keywords: 'custom posters bd, custom posters Bangladesh, self adhesive posters BD, glue posters Dhaka, poster printing BD, photo prints Dhaka, personalized posters, wall art Bangladesh, custom prints BD, poster shop Dhaka, photo printing Bangladesh, handmade posters, adhesive wall art',
   authors: [{ name: 'Paperpatch' }],
   creator: 'Paperpatch',
   publisher: 'Paperpatch',
+  icons: {
+    icon: [
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/favicon-32x32.png',
+  },
   openGraph: {
     title: 'Paperpatch - Custom Poster Prints in Bangladesh',
     description: 'Create beautiful custom posters and photo prints. Handmade with care, delivered across Bangladesh.',
