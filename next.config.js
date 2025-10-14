@@ -16,6 +16,15 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react'],
   },
+  // Optimize bundle
+  productionBrowserSourceMaps: false,
+  reactStrictMode: true,
+  // Reduce bundle size
+  modularizeImports: {
+    'lucide-react': {
+      transform: 'lucide-react/dist/esm/icons/{{kebabCase member}}',
+    },
+  },
 }
 
 module.exports = nextConfig
