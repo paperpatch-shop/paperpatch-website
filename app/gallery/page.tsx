@@ -150,6 +150,10 @@ export default function GalleryPage() {
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 50vw, 25vw"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
                     />
                   </div>
                 ))}
@@ -182,6 +186,10 @@ export default function GalleryPage() {
                         fill
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, 50vw"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
                       />
                     </div>
                   </div>
