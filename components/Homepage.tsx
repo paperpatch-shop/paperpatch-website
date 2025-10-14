@@ -37,7 +37,7 @@ export default function Homepage() {
                 height={167}
                 className="drop-shadow-2xl"
                 priority
-                quality={85}
+                quality={75}
               />
             </div>
             <h1 className="text-2xl md:text-3xl text-[#6B5444] drop-shadow-lg font-mono font-medium">

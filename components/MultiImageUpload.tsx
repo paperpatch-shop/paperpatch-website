@@ -23,9 +23,9 @@ interface MultiImageUploadProps {
 
 // Background images
 const BACKGROUND_IMAGES = [
-  '/background-1.png',
-  '/background-2.png',
-  '/background-3.png',
+  '/background-1.jpg',
+  '/background-2.jpg',
+  '/background-3.jpg',
 ];
 
 // Poster size presets with scale ratios (0.5:0.75:1:1.3)

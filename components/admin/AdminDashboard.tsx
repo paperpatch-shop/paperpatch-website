@@ -107,7 +107,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
             <div className="flex items-center space-x-3">
               <Link href="/" className="flex items-center space-x-3 group">
                 <Image
-                  src="/logo.png"
+                  src="/logo.jpg"
                   alt="Paperpatch"
                   width={150}
                   height={50}

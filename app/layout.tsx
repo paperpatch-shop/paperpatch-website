@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/logo.png',
+        url: '/logo.jpg',
         width: 1200,
         height: 630,
         alt: 'Paperpatch - Custom Poster Prints Bangladesh',
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Paperpatch - Custom Poster Prints in Bangladesh',
     description: 'Create beautiful custom posters and photo prints. Handmade with care.',
-    images: ['/logo.png'],
+    images: ['/logo.jpg'],
   },
   robots: {
     index: true,

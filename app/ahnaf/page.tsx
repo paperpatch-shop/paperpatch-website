@@ -60,7 +60,7 @@ export default function AdminPage() {
             <div className="text-center mb-8">
               <div className="mb-6">
                 <Image
-                  src="/logo.png"
+                  src="/logo.jpg"
                   alt="Paperpatch Admin"
                   width={200}
                   height={67}

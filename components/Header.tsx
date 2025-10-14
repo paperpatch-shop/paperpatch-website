@@ -10,7 +10,7 @@ export default function Header() {
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center group">
             <Image
-              src="/logo.png"
+              src="/logo.jpg"
               alt="Paperpatch"
               width={150}
               height={50}

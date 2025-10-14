@@ -5,8 +5,8 @@ export default function StructuredData() {
     name: 'Paperpatch',
     description: 'Custom self-adhesive poster prints and photo printing service in Bangladesh',
     url: 'https://paperpatch.shop',
-    logo: 'https://paperpatch.shop/logo.png',
-    image: 'https://paperpatch.shop/logo.png',
+    logo: 'https://paperpatch.shop/logo.jpg',
+    image: 'https://paperpatch.shop/logo.jpg',
     priceRange: '৳৳',
     address: {
       '@type': 'PostalAddress',
