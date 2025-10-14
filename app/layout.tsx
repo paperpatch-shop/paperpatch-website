@@ -6,13 +6,15 @@ import StructuredData from './schema'
 const dmSans = DM_Sans({ 
   weight: ['400', '500', '600', '700'],
   subsets: ['latin'],
-  variable: '--font-dm-sans'
+  variable: '--font-dm-sans',
+  display: 'swap'
 })
 
 const dmMono = DM_Mono({ 
   weight: ['300', '400', '500'],
   subsets: ['latin'],
-  variable: '--font-dm-mono'
+  variable: '--font-dm-mono',
+  display: 'swap'
 })
 
 export const metadata: Metadata = {
