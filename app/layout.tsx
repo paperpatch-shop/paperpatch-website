@@ -22,9 +22,9 @@ const dmMono = DM_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Paperpatch - Custom Self-Adhesive Poster Prints in Bangladesh | Photo Prints BD',
+  title: 'Paperpatch - Custom Posters, Stickers & Wall Art in Bangladesh',
   description: 'Order custom self-adhesive poster prints in Bangladesh. High-quality photo prints, personalized wall art, and handmade glue posters delivered across Dhaka and Bangladesh. Affordable prices, fast delivery.',
-  keywords: 'custom posters bd, custom posters Bangladesh, self adhesive posters BD, glue posters Dhaka, poster printing BD, photo prints Dhaka, personalized posters, wall art Bangladesh, custom prints BD, poster shop Dhaka, photo printing Bangladesh, handmade posters, adhesive wall art',
+  keywords: 'custom posters bd, stickers bd, wall art Bangladesh, custom posters Bangladesh, self adhesive posters BD, sticky posters, decor Bangladesh, glue posters Dhaka, poster printing BD, photo prints Dhaka, personalized posters, wall decor, custom prints BD, poster shop Dhaka, photo printing Bangladesh, handmade posters, adhesive wall art, sticker printing bd, wall stickers Bangladesh',
   authors: [{ name: 'Paperpatch' }],
   creator: 'Paperpatch',
   publisher: 'Paperpatch',
@@ -37,8 +37,8 @@ export const metadata: Metadata = {
     apple: '/favicon-32x32.png',
   },
   openGraph: {
-    title: 'Paperpatch - Custom Poster Prints in Bangladesh',
-    description: 'Create beautiful custom posters and photo prints. Handmade with care, delivered across Bangladesh.',
+    title: 'Paperpatch - Custom Poster Prints, Stickers & Wall Art in Bangladesh',
+    description: 'Create beautiful custom posters, stickers, and wall decor. High-quality sticky prints and wall art, handmade with care, delivered across Bangladesh.',
     url: 'https://paperpatch.shop',
     siteName: 'Paperpatch',
     locale: 'en_US',
@@ -54,8 +54,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Paperpatch - Custom Poster Prints in Bangladesh',
-    description: 'Create beautiful custom posters and photo prints. Handmade with care.',
+    title: 'Paperpatch - Custom Poster Prints, Stickers & Wall Art in Bangladesh',
+    description: 'Create beautiful custom posters, stickers, and wall decor. High-quality sticky prints and wall art, handmade with care.',
     images: ['/logo.jpg'],
   },
   robots: {

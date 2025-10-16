@@ -3,7 +3,7 @@ export default function StructuredData() {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name: 'Paperpatch',
-    description: 'Custom self-adhesive poster prints and photo printing service in Bangladesh',
+    description: 'Custom self-adhesive poster prints, stickers, wall art, and photo printing service in Bangladesh. High-quality sticky posters and wall decor.',
     url: 'https://paperpatch.shop',
     logo: 'https://paperpatch.shop/logo.jpg',
     image: 'https://paperpatch.shop/logo.jpg',
@@ -27,22 +27,22 @@ export default function StructuredData() {
     },
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
-      name: 'Custom Poster Printing Services',
+      name: 'Custom Poster Printing, Stickers & Wall Art Services',
       itemListElement: [
         {
           '@type': 'Offer',
           itemOffered: {
             '@type': 'Service',
             name: 'Custom Self-Adhesive Poster Prints',
-            description: 'High-quality custom self-adhesive poster printing service',
+            description: 'High-quality custom self-adhesive sticky poster printing service and wall art',
           },
         },
         {
           '@type': 'Offer',
           itemOffered: {
             '@type': 'Service',
-            name: 'Photo Prints',
-            description: 'Professional photo printing service',
+            name: 'Photo Prints & Stickers',
+            description: 'Professional photo printing service, custom stickers, and wall decor',
           },
         },
       ],
