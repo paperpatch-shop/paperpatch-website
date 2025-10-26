@@ -484,3 +484,295 @@ function generateAdminEmailHTML(data: OrderEmailData): string {
     </html>
   `;
 }
+
+interface StatusUpdateEmailData {
+  orderId: string;
+  customerName: string;
+  customerEmail: string;
+}
+
+export async function sendReadyToShipEmail(data: StatusUpdateEmailData) {
+  try {
+    await resend.emails.send({
+      from: 'Paperpatch <orders@paperpatch.shop>',
+      to: data.customerEmail,
+      subject: 'Your Paperpatch order is ready for delivery!',
+      html: generateReadyToShipEmailHTML(data),
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to send ready-to-ship email:', error);
+    throw error;
+  }
+}
+
+export async function sendDeliveredEmail(data: StatusUpdateEmailData) {
+  try {
+    await resend.emails.send({
+      from: 'Paperpatch <orders@paperpatch.shop>',
+      to: data.customerEmail,
+      subject: 'Your Paperpatch order has been delivered!',
+      html: generateDeliveredEmailHTML(data),
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to send delivered email:', error);
+    throw error;
+  }
+}
+
+function generateReadyToShipEmailHTML(data: StatusUpdateEmailData): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #2c2c2c;
+            background: #f5f5f5;
+            padding: 20px;
+          }
+          .email-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+          }
+          .header {
+            background: linear-gradient(135deg, #8B6F47 0%, #6B5444 100%);
+            padding: 40px 30px;
+            text-align: center;
+          }
+          .logo-text {
+            font-size: 32px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+          }
+          .header-title {
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+            margin-top: 20px;
+          }
+          .content {
+            padding: 40px 30px;
+          }
+          .order-number {
+            background: #FFF9F0;
+            border-left: 4px solid #8B6F47;
+            padding: 16px 20px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+          }
+          .order-number strong {
+            color: #6B5444;
+            font-size: 18px;
+          }
+          .greeting {
+            font-size: 16px;
+            color: #2c2c2c;
+            margin-bottom: 12px;
+          }
+          .message {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.8;
+          }
+          .signature {
+            margin-top: 30px;
+            color: #666;
+          }
+          .footer {
+            background: #FAFAFA;
+            padding: 30px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+          }
+          .footer-link {
+            color: #8B6F47;
+            text-decoration: none;
+            font-weight: 600;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="email-wrapper">
+          <div class="header">
+            <div class="logo-text">Paperpatch</div>
+            <div class="header-title">Order Ready for Delivery</div>
+          </div>
+
+          <div class="content">
+            <div class="order-number">
+              <strong>Order #${data.orderId}</strong>
+            </div>
+
+            <div class="greeting">Dear ${data.customerName},</div>
+            
+            <div class="message">
+              We're happy to let you know that your Order #${data.orderId} is now prepared and ready to be delivered. It will be on its way to you shortly.
+            </div>
+
+            <div class="message">
+              Thank you for choosing Paperpatch! We truly appreciate your support and look forward to creating more posters for you soon.
+            </div>
+
+            <div class="signature">
+              Yours sincerely,<br>
+              <strong>Paperpatch</strong>
+            </div>
+          </div>
+
+          <div class="footer">
+            <p>Questions? Reach us on <a href="https://instagram.com/paperpatchbd" class="footer-link">Instagram @paperpatchbd</a></p>
+            <p style="margin-top: 10px; color: #999; font-size: 13px;">Paperpatch - Handcrafted in Dhaka, Bangladesh</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+}
+
+function generateDeliveredEmailHTML(data: StatusUpdateEmailData): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #2c2c2c;
+            background: #f5f5f5;
+            padding: 20px;
+          }
+          .email-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+          }
+          .header {
+            background: linear-gradient(135deg, #8B6F47 0%, #6B5444 100%);
+            padding: 40px 30px;
+            text-align: center;
+          }
+          .logo-text {
+            font-size: 32px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+          }
+          .header-title {
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+            margin-top: 20px;
+          }
+          .content {
+            padding: 40px 30px;
+          }
+          .order-number {
+            background: #FFF9F0;
+            border-left: 4px solid #8B6F47;
+            padding: 16px 20px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+          }
+          .order-number strong {
+            color: #6B5444;
+            font-size: 18px;
+          }
+          .greeting {
+            font-size: 16px;
+            color: #2c2c2c;
+            margin-bottom: 12px;
+          }
+          .message {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.8;
+          }
+          .signature {
+            margin-top: 30px;
+            color: #666;
+          }
+          .footer {
+            background: #FAFAFA;
+            padding: 30px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+          }
+          .footer-link {
+            color: #8B6F47;
+            text-decoration: none;
+            font-weight: 600;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="email-wrapper">
+          <div class="header">
+            <div class="logo-text">Paperpatch</div>
+            <div class="header-title">Order Delivered</div>
+          </div>
+
+          <div class="content">
+            <div class="order-number">
+              <strong>Order #${data.orderId}</strong>
+            </div>
+
+            <div class="greeting">Dear ${data.customerName},</div>
+            
+            <div class="message">
+              We are excited to inform you that your Order #${data.orderId} has been successfully delivered.
+            </div>
+
+            <div class="message">
+              As we'd love to hear your thoughts on your new purchase, please do take a moment to send a review to our Instagram page. This will also help other buyers get an idea for the product(s).
+            </div>
+
+            <div class="message">
+              Thank you for shopping with Paperpatch and we look forward to your next purchase. Stay safe!
+            </div>
+
+            <div class="signature">
+              Yours sincerely,<br>
+              <strong>Paperpatch</strong>
+            </div>
+          </div>
+
+          <div class="footer">
+            <p>Share your review on <a href="https://instagram.com/paperpatchbd" class="footer-link">Instagram @paperpatchbd</a></p>
+            <p style="margin-top: 10px; color: #999; font-size: 13px;">Paperpatch - Handcrafted in Dhaka, Bangladesh</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+}

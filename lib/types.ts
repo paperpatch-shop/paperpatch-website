@@ -54,7 +54,7 @@ export interface Order {
   bkashTransactionId?: string;
   shippingCost: number;
   totalAmount: number;
-  status: 'pending' | 'approved' | 'rejected' | 'completed';
+  status: 'pending' | 'approved' | 'rejected' | 'ready_to_ship' | 'completed';
   createdAt: string;
   approvedAt?: string;
   notes?: string;

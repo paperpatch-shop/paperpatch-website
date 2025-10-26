@@ -41,6 +41,8 @@ export default function OrderCard({ order, onUpdate }: OrderCardProps) {
         return 'bg-green-100 text-green-800 border-green-300';
       case 'rejected':
         return 'bg-red-100 text-red-800 border-red-300';
+      case 'ready_to_ship':
+        return 'bg-purple-100 text-purple-800 border-purple-300';
       case 'completed':
         return 'bg-blue-100 text-blue-800 border-blue-300';
       default:
@@ -52,6 +54,29 @@ export default function OrderCard({ order, onUpdate }: OrderCardProps) {
     setIsUpdating(true);
     const success = await updateOrderStatus(order.id, newStatus, notes);
     if (success) {
+      // Send email notification for ready_to_ship and completed statuses
+      if (newStatus === 'ready_to_ship' || newStatus === 'completed') {
+        try {
+          const response = await fetch('/api/send-status-email', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              orderId: order.orderNumber,
+              customerName: order.shipping.name,
+              customerEmail: order.shipping.email,
+              status: newStatus,
+            }),
+          });
+          
+          if (!response.ok) {
+            console.error('Failed to send status email');
+          }
+        } catch (error) {
+          console.error('Error sending status email:', error);
+        }
+      }
       onUpdate();
     } else {
       alert('Failed to update order status');
@@ -513,6 +538,30 @@ export default function OrderCard({ order, onUpdate }: OrderCardProps) {
               )}
 
               {order.status === 'approved' && (
+                <div className="bg-white rounded-lg p-4">
+                  <h4 className="font-semibold text-paper-900 mb-3">Update Order Status</h4>
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => handleStatusUpdate('ready_to_ship')}
+                      disabled={isUpdating}
+                      className="w-full btn-primary bg-purple-600 hover:bg-purple-700"
+                    >
+                      <Package className="w-4 h-4 inline mr-2" />
+                      Ready to Ship
+                    </button>
+                    <button
+                      onClick={() => handleStatusUpdate('completed')}
+                      disabled={isUpdating}
+                      className="w-full btn-primary bg-blue-600 hover:bg-blue-700"
+                    >
+                      <Check className="w-4 h-4 inline mr-2" />
+                      Mark as Completed
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {order.status === 'ready_to_ship' && (
                 <div className="bg-white rounded-lg p-4">
                   <h4 className="font-semibold text-paper-900 mb-3">Mark as Completed</h4>
                   <button
