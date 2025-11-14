@@ -67,7 +67,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
       rejectedOrders: ordersList.filter(o => o.status === 'rejected').length,
       totalRevenue: ordersList
         .filter(o => o.status === 'approved' || o.status === 'completed')
-        .reduce((sum, o) => sum + o.totalAmount, 0),
+        .reduce((sum, o) => sum + (o.totalAmount - o.shippingCost), 0),
     };
     setStats(newStats);
   };
